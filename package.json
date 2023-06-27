@@ -1,0 +1,34 @@
+{
+  "name": "pwa",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deps:update:all": "sst update && pnpm install && pnpm up -i -L '!aws-cdk-lib' '!constructs'",
+    "db:push": "pnpm --filter '@pwa/core' db:push",
+    "dev:backend": "sst dev",
+    "dev:web": "pnpm --filter '@pwa/web' dev",
+    "typecheck": "tsc",
+    "typecheck:all": "pnpm -r run --aggregate-output --parallel typecheck"
+  },
+  "devDependencies": {
+    "@remix-run/eslint-config": "1.18.0",
+    "@tsconfig/node16": "^1.0.4",
+    "aws-cdk-lib": "2.84.0",
+    "constructs": "10.1.156",
+    "eslint": "^8.43.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "prettier": "^2.8.8",
+    "prettier-plugin-tailwindcss": "^0.3.0",
+    "sst": "2.17.3",
+    "typescript": "^5.1.3"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "pnpm": {
+    "patchedDependencies": {
+      "mitt@3.0.0": "patches/mitt@3.0.0.patch"
+    }
+  }
+}

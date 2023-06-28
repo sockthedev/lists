@@ -2,13 +2,13 @@ import { createId } from "@paralleldrive/cuid2"
 import { createSelectSchema } from "drizzle-zod"
 import type { z } from "zod"
 
-import { useWorkspace } from "../actor"
-import { dbNow } from "../util/datetime"
-import { useTransaction } from "../util/transaction"
-import { zod } from "../util/zod"
-import { todo } from "./todo.sql"
+import { useWorkspace } from "../actor.ts"
+import { dbNow } from "../util/datetime.ts"
+import { useTransaction } from "../util/transaction.ts"
+import { zod } from "../util/zod.ts"
+import { todo } from "./todo.sql.ts"
 
-export * as Todo from "./index"
+export * as Todo from "./index.ts"
 
 const Schema = createSelectSchema(todo, {
   id: (schema) => schema.id.cuid2(),

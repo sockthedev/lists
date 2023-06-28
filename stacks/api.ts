@@ -1,10 +1,10 @@
 import type { StackContext } from "sst/constructs"
 import { Api, use } from "sst/constructs"
 
-import { Auth } from "./auth"
-import { DNS } from "./dns"
-import { Events } from "./events"
-import { Secrets } from "./secrets"
+import { Auth } from "./auth.ts"
+import { DNS } from "./dns.ts"
+import { Events } from "./events.ts"
+import { Secrets } from "./secrets.ts"
 
 export function API(ctx: StackContext) {
   const auth = use(Auth)

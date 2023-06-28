@@ -2,8 +2,8 @@ import type { StackContext } from "sst/constructs"
 import { use } from "sst/constructs"
 import { Auth as SSTAuth } from "sst/constructs/future"
 
-import { DNS } from "./dns"
-import { Secrets } from "./secrets"
+import { DNS } from "./dns.ts"
+import { Secrets } from "./secrets.ts"
 
 export function Auth(ctx: StackContext) {
   const dns = use(DNS)

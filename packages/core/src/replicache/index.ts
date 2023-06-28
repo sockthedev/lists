@@ -2,13 +2,13 @@ import { eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
 import type { z } from "zod"
 
-import { Realtime } from "../realtime"
-import { dbNow } from "../util/datetime"
-import { useTransaction } from "../util/transaction"
-import { zod } from "../util/zod"
-import { replicache_client } from "./replicache.sql"
+import { Realtime } from "../realtime/index.ts"
+import { dbNow } from "../util/datetime.ts"
+import { useTransaction } from "../util/transaction.ts"
+import { zod } from "../util/zod.ts"
+import { replicache_client } from "./replicache.sql.ts"
 
-export * as Replicache from "."
+export * as Replicache from "./index.ts"
 
 const Schema = createSelectSchema(replicache_client)
 

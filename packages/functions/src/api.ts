@@ -1,5 +1,5 @@
-import { assertActor, provideActor, useActor } from "@pwa/core/actor"
-import { User } from "@pwa/core/user"
+import { assertActor, provideActor, useActor } from "@pwa/core/actor.ts"
+import { User } from "@pwa/core/user/index.ts"
 import { useHeader } from "sst/node/api"
 import { useSession } from "sst/node/future/auth"
 import invariant from "tiny-invariant"

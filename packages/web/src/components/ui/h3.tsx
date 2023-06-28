@@ -1,6 +1,6 @@
 // https://ui.shadcn.com/docs/components/typography
 
-import { cn } from "@/lib/cn"
+import { cn } from "@/lib/cn.ts"
 
 export const H3: React.FC<React.ComponentProps<"h3">> = (props) => {
   return (

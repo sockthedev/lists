@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/node16/tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "module": "esnext",
     "noUncheckedIndexedAccess": true,
     "noEmit": true

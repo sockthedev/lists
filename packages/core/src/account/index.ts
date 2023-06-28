@@ -3,12 +3,12 @@ import { eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
 import type { z } from "zod"
 
-import { dbNow } from "../util/datetime"
-import { useTransaction } from "../util/transaction"
-import { zod } from "../util/zod"
-import { account } from "./account.sql"
+import { dbNow } from "../util/datetime.ts"
+import { useTransaction } from "../util/transaction.ts"
+import { zod } from "../util/zod.ts"
+import { account } from "./account.sql.ts"
 
-export * as Account from "./"
+export * as Account from "./index.ts"
 
 const Schema = createSelectSchema(account, {
   id: (schema) => schema.id.cuid2(),

@@ -1,7 +1,7 @@
-import type { Workspace } from "@pwa/core/workspace"
+import type { Workspace } from "@pwa/core/workspace/index.ts"
 import type { ReadTransaction } from "replicache"
 
-export * as WorkspaceStore from "./workspace"
+export * as WorkspaceStore from "./workspace.ts"
 
 export function list() {
   return async (tx: ReadTransaction) => {

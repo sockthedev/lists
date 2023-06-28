@@ -1,10 +1,10 @@
 import type { StackContext } from "sst/constructs"
 import { StaticSite, use } from "sst/constructs"
 
-import { API } from "./api"
-import { Auth } from "./auth"
-import { DNS } from "./dns"
-import { Realtime } from "./realtime"
+import { API } from "./api.ts"
+import { Auth } from "./auth.ts"
+import { DNS } from "./dns.ts"
+import { Realtime } from "./realtime.ts"
 
 export function Web(ctx: StackContext) {
   const dns = use(DNS)

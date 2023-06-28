@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button.tsx"
 import {
   Form,
   FormControl,
@@ -14,10 +14,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Seperator } from "@/components/ui/seperator"
-import { useAuth } from "@/context/auth"
+} from "@/components/ui/form.tsx"
+import { Input } from "@/components/ui/input.tsx"
+import { Seperator } from "@/components/ui/seperator.tsx"
+import { useAuth } from "@/context/auth.tsx"
 
 const emailFormSchema = z.object({
   email: z.string().email({

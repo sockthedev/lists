@@ -3,14 +3,14 @@ import { and, eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
 import type { z } from "zod"
 
-import { useWorkspace } from "../actor"
-import { db } from "../drizzle"
-import { dbNow } from "../util/datetime"
-import { useTransaction } from "../util/transaction"
-import { zod } from "../util/zod"
-import { user } from "./user.sql"
+import { useWorkspace } from "../actor.ts"
+import { db } from "../drizzle/index.ts"
+import { dbNow } from "../util/datetime.ts"
+import { useTransaction } from "../util/transaction.ts"
+import { zod } from "../util/zod.ts"
+import { user } from "./user.sql.ts"
 
-export * as User from "./"
+export * as User from "./index.ts"
 
 const Schema = createSelectSchema(user, {
   id: (schema) => schema.id.cuid2(),

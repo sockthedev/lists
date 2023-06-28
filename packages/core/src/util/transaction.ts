@@ -5,7 +5,7 @@ import type {
 } from "drizzle-orm/planetscale-serverless"
 import { Context } from "sst/context"
 
-import { db } from "../drizzle"
+import { db } from "../drizzle/index.ts"
 
 export type Transaction = MySqlTransaction<
   PlanetscaleQueryResultHKT,

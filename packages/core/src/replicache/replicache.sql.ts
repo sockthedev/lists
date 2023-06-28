@@ -6,8 +6,8 @@ import {
   primaryKey,
 } from "drizzle-orm/mysql-core"
 
-import type { Actor } from "../actor"
-import { datetimes, id } from "../util/sql"
+import type { Actor } from "../actor.ts"
+import { datetimes, id } from "../util/sql.ts"
 
 export const replicache_client = mysqlTable("replicache_client", {
   id: char("id", { length: 36 }).primaryKey(),

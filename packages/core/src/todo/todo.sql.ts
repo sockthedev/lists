@@ -5,7 +5,7 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core"
 
-import { datetimes, workspaceId } from "../util/sql"
+import { datetimes, workspaceId } from "../util/sql.ts"
 
 export const todo = mysqlTable(
   "todo",

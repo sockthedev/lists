@@ -1,6 +1,6 @@
 // https://ui.shadcn.com/docs/components/typography
 
-import { cn } from "@/lib/cn"
+import { cn } from "@/lib/cn.ts"
 
 export type H1Props = React.ComponentProps<"h1">
 

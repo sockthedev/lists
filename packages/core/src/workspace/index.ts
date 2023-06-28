@@ -3,13 +3,13 @@ import { eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
 import type { z } from "zod"
 
-import { db } from "../drizzle"
-import { dbNow } from "../util/datetime"
-import { useTransaction } from "../util/transaction"
-import { zod } from "../util/zod"
-import { workspace } from "./workspace.sql"
+import { db } from "../drizzle/index.ts"
+import { dbNow } from "../util/datetime.ts"
+import { useTransaction } from "../util/transaction.ts"
+import { zod } from "../util/zod.ts"
+import { workspace } from "./workspace.sql.ts"
 
-export * as Workspace from "./"
+export * as Workspace from "./index.ts"
 
 const Schema = createSelectSchema(workspace, {
   id: (schema) => schema.id.cuid2(),

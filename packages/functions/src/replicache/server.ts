@@ -1,4 +1,4 @@
-import { Server } from "./framework"
+import { Server } from "./framework.ts"
 
 export const server = new Server()
 

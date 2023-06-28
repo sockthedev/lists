@@ -1,6 +1,6 @@
 import React from "react"
 
-import { useAuth } from "@/context/auth"
+import { useAuth } from "@/context/auth.tsx"
 
 export function LoginCallback() {
   const { account } = useAuth()

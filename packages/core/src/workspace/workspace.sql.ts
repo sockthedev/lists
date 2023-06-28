@@ -1,6 +1,6 @@
 import { mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core"
 
-import { datetimes, id } from "../util/sql"
+import { datetimes, id } from "../util/sql.ts"
 
 export const workspace = mysqlTable(
   "workspace",

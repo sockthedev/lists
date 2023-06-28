@@ -5,7 +5,7 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core"
 
-import { datetimes, id } from "../util/sql"
+import { datetimes, id } from "../util/sql.ts"
 
 export const account = mysqlTable(
   "account",

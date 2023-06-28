@@ -1,10 +1,10 @@
-import { Client } from "@pwa/functions/replicache/framework"
-import type { ServerType } from "@pwa/functions/replicache/server"
+import { Client } from "@pwa/functions/replicache/framework.ts"
+import type { ServerType } from "@pwa/functions/replicache/server.ts"
 import React from "react"
 import { Replicache } from "replicache"
 
-import { useAuth } from "./auth"
-import { bus } from "./bus"
+import { useAuth } from "./auth.tsx"
+import { bus } from "./bus.tsx"
 
 const mutators = new Client<ServerType>()
   // .mutation("connect", async (_tx, _input) => {})

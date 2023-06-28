@@ -4,9 +4,9 @@ import {
 } from "@aws-sdk/client-iot-data-plane"
 import { Config } from "sst/node/config"
 
-import { useWorkspace } from "../actor"
+import { useWorkspace } from "../actor.ts"
 
-export * as Realtime from "."
+export * as Realtime from "./index.ts"
 
 const data = new IoTDataPlaneClient({})
 

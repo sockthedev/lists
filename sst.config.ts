@@ -1,12 +1,12 @@
 import type { SSTConfig } from "sst"
 
-import { API } from "./stacks/api"
-import { Auth } from "./stacks/auth"
-import { DNS } from "./stacks/dns"
-import { Events } from "./stacks/events"
-import { Realtime } from "./stacks/realtime"
-import { Secrets } from "./stacks/secrets"
-import { Web } from "./stacks/web"
+import { API } from "./stacks/api.ts"
+import { Auth } from "./stacks/auth.ts"
+import { DNS } from "./stacks/dns.ts"
+import { Events } from "./stacks/events.ts"
+import { Realtime } from "./stacks/realtime.ts"
+import { Secrets } from "./stacks/secrets.ts"
+import { Web } from "./stacks/web.ts"
 
 export default {
   config(input) {

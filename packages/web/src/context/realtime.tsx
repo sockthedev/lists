@@ -3,10 +3,10 @@ import React from "react"
 import { Replicache } from "replicache"
 import invariant from "tiny-invariant"
 
-import { WorkspaceStore } from "@/data/workspace"
+import { WorkspaceStore } from "@/data/workspace.ts"
 
-import { useAuth } from "./auth"
-import { bus } from "./bus"
+import { useAuth } from "./auth.tsx"
+import { bus } from "./bus.tsx"
 
 let connectionId = 0
 

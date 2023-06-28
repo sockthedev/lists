@@ -1,13 +1,13 @@
 import type { RouteObject } from "react-router-dom"
 
-import AuthLayout from "./auth/_layout"
-import { LoginCallback } from "./auth/callback"
-import { Login } from "./auth/login"
-import { PublicLayout } from "./public/_layout"
-import { About } from "./public/about"
-import { Home } from "./public/home"
-import { UserLayout } from "./user/_layout"
-import { UserDashboard } from "./user/dashboard"
+import AuthLayout from "./auth/_layout.tsx"
+import { LoginCallback } from "./auth/callback.tsx"
+import { Login } from "./auth/login.tsx"
+import { PublicLayout } from "./public/_layout.tsx"
+import { About } from "./public/about.tsx"
+import { Home } from "./public/home.tsx"
+import { UserLayout } from "./user/_layout.tsx"
+import { UserDashboard } from "./user/dashboard.tsx"
 
 export const routes: RouteObject[] = [
   // Public Routes

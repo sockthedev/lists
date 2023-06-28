@@ -5,8 +5,8 @@ import type { StackContext } from "sst/constructs"
 import { use } from "sst/constructs"
 import { Function } from "sst/constructs"
 
-import { Auth } from "./auth"
-import { Secrets } from "./secrets"
+import { Auth } from "./auth.ts"
+import { Secrets } from "./secrets.ts"
 
 export function Realtime(ctx: StackContext) {
   const auth = use(Auth)

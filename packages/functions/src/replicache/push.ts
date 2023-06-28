@@ -1,11 +1,11 @@
-import { useActor } from "@pwa/core/actor"
-import { Realtime } from "@pwa/core/realtime"
-import { Replicache } from "@pwa/core/replicache"
-import { useTransaction } from "@pwa/core/util/transaction"
+import { useActor } from "@pwa/core/actor.ts"
+import { Realtime } from "@pwa/core/realtime/index.ts"
+import { Replicache } from "@pwa/core/replicache/index.ts"
+import { useTransaction } from "@pwa/core/util/transaction.ts"
 import { ApiHandler, useJsonBody } from "sst/node/api"
 
-import { useApiAuth } from "../api"
-import { server } from "./server"
+import { useApiAuth } from "../api.ts"
+import { server } from "./server.ts"
 
 export const handler = ApiHandler(async () => {
   await useApiAuth()

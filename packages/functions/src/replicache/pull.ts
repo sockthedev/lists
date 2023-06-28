@@ -1,16 +1,16 @@
-import { useActor, useWorkspace } from "@pwa/core/actor"
-import { Replicache } from "@pwa/core/replicache"
-import { replicache_cvr } from "@pwa/core/replicache/replicache.sql"
-import { user } from "@pwa/core/user/user.sql"
-import { dbNow } from "@pwa/core/util/datetime"
-import { createId } from "@pwa/core/util/sql"
-import { useTransaction } from "@pwa/core/util/transaction"
-import { workspace } from "@pwa/core/workspace/workspace.sql"
+import { useActor, useWorkspace } from "@pwa/core/actor.ts"
+import { Replicache } from "@pwa/core/replicache/index.ts"
+import { replicache_cvr } from "@pwa/core/replicache/replicache.sql.ts"
+import { user } from "@pwa/core/user/user.sql.ts"
+import { dbNow } from "@pwa/core/util/datetime.ts"
+import { createId } from "@pwa/core/util/sql.ts"
+import { useTransaction } from "@pwa/core/util/transaction.ts"
+import { workspace } from "@pwa/core/workspace/workspace.sql.ts"
 import { and, eq, gt, inArray } from "drizzle-orm"
 import { mapValues } from "remeda"
 import { ApiHandler, useJsonBody } from "sst/node/api"
 
-import { useApiAuth } from "../api"
+import { useApiAuth } from "../api.ts"
 
 const VERSION = 1
 

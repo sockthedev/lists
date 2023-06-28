@@ -1,4 +1,4 @@
-import { List } from "@pwa/core/list/index.ts"
+import { List } from "@lists/core/list/index.ts"
 
 import { Server } from "./framework.ts"
 

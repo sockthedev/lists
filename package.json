@@ -1,13 +1,13 @@
 {
-  "name": "pwa",
+  "name": "lists",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "deps:update:all": "sst update && pnpm install && pnpm up -i -L '!aws-cdk-lib' '!constructs'",
-    "db:push": "pnpm --filter '@pwa/core' db:push",
+    "db:push": "pnpm --filter '@lists/core' db:push",
     "dev:backend": "sst dev",
-    "dev:web": "pnpm --filter '@pwa/web' dev",
+    "dev:web": "pnpm --filter '@lists/web' dev",
     "typecheck": "tsc",
     "typecheck:all": "pnpm -r run --aggregate-output --parallel typecheck"
   },

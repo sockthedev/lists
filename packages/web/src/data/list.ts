@@ -1,4 +1,4 @@
-import type { List } from "@pwa/core/list/index.ts"
+import type { List } from "@lists/core/list/index.ts"
 import type { ReadTransaction } from "replicache"
 
 export * as ListStore from "./list.ts"

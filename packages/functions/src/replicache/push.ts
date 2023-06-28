@@ -1,7 +1,7 @@
-import { useActor } from "@pwa/core/actor.ts"
-import { Realtime } from "@pwa/core/realtime/index.ts"
-import { Replicache } from "@pwa/core/replicache/index.ts"
-import { useTransaction } from "@pwa/core/util/transaction.ts"
+import { useActor } from "@lists/core/actor.ts"
+import { Realtime } from "@lists/core/realtime/index.ts"
+import { Replicache } from "@lists/core/replicache/index.ts"
+import { useTransaction } from "@lists/core/util/transaction.ts"
 import { ApiHandler, useJsonBody } from "sst/node/api"
 
 import { useApiAuth } from "../api.ts"

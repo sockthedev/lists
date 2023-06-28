@@ -11,7 +11,7 @@ import { Web } from "./stacks/web.ts"
 export default {
   config(input) {
     return {
-      name: "pwa",
+      name: "lists",
       region: input.stage === "production" ? "us-east-1" : "ap-southeast-1",
       profile: "sockthedev",
     }

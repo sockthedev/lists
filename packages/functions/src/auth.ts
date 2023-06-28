@@ -1,5 +1,5 @@
-import { Account } from "@pwa/core/account/index.ts"
-import { useTransaction } from "@pwa/core/util/transaction.ts"
+import { Account } from "@lists/core/account/index.ts"
+import { useTransaction } from "@lists/core/util/transaction.ts"
 import { Config } from "sst/node/config"
 import { AuthHandler, GoogleAdapter } from "sst/node/future/auth"
 import invariant from "tiny-invariant"

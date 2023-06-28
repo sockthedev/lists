@@ -7,8 +7,8 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "@pwa/core/*": ["../core/src/*"],
-      "@pwa/functions/*": ["../functions/src/*"],
+      "@lists/core/*": ["../core/src/*"],
+      "@lists/functions/*": ["../functions/src/*"],
       "@/*": ["./src/*"]
     },
 

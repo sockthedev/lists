@@ -6,7 +6,7 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "@pwa/core/*": ["../core/src/*"]
+      "@lists/core/*": ["../core/src/*"]
     },
     "noEmit": true
   }

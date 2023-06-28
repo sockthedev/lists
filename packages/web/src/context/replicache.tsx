@@ -1,5 +1,5 @@
-import { Client } from "@pwa/functions/replicache/framework.ts"
-import type { ServerType } from "@pwa/functions/replicache/server.ts"
+import { Client } from "@lists/functions/replicache/framework.ts"
+import type { ServerType } from "@lists/functions/replicache/server.ts"
 import React from "react"
 import { Replicache } from "replicache"
 

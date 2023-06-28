@@ -20,8 +20,9 @@ const Schema = createSelectSchema(user, {
 export type Type = z.infer<typeof Schema>
 
 export const create = zod(
-  Schema.pick({ email: true, id: true }).partial({
+  Schema.pick({ email: true, id: true, role: true }).partial({
     id: true,
+    role: true,
   }),
   async (input) => {
     const id = input.id ?? createId()
@@ -29,6 +30,7 @@ export const create = zod(
     const data: Type = {
       id,
       email: input.email,
+      role: input.role ?? "viewer",
       workspaceId: useWorkspace(),
       createdAt: now,
       updatedAt: now,

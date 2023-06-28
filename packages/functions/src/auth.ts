@@ -48,6 +48,7 @@ export const handler = AuthHandler({
 
         await User.create({
           email: email!,
+          role: "owner",
         })
       })
     }

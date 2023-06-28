@@ -1,4 +1,5 @@
 import {
+  mysqlEnum,
   mysqlTable,
   primaryKey,
   uniqueIndex,
@@ -12,6 +13,7 @@ export const user = mysqlTable(
   {
     ...workspaceId,
     email: varchar("email", { length: 255 }).notNull(),
+    role: mysqlEnum("role", ["owner", "admin", "viewer"]).notNull(),
     ...datetimes,
   },
   (user) => ({

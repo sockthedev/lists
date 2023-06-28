@@ -8,18 +8,16 @@ export const id = {
   id: cuid("id").notNull(),
 }
 
-export const workspaceId = {
+export const listId = {
   ...id,
-  workspaceId: cuid("workspace_id").notNull(),
+  listId: cuid("list_id").notNull(),
 }
-export const datetimes = {
+
+export const timestamps = {
   createdAt: datetime("created_at", {
     mode: "string",
   }).notNull(),
   updatedAt: datetime("updated_at", {
     mode: "string",
   }).notNull(),
-  deletedAt: datetime("deleted_at", {
-    mode: "string",
-  }),
 }

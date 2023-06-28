@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
 import type { z } from "zod"
 
-import { useWorkspace } from "../actor.ts"
+import { useList } from "../actor.ts"
 import { db } from "../drizzle/index.ts"
 import { dbNow } from "../util/datetime.ts"
 import { useTransaction } from "../util/transaction.ts"
@@ -31,10 +31,9 @@ export const create = zod(
       id,
       email: input.email,
       role: input.role ?? "viewer",
-      workspaceId: useWorkspace(),
+      listId: useList(),
       createdAt: now,
       updatedAt: now,
-      deletedAt: null,
     }
     await useTransaction(async (tx) => {
       await tx.insert(user).values(data)
@@ -49,7 +48,7 @@ export const fromID = zod(Schema.pick({ id: true }), async (input) =>
     return tx
       .select()
       .from(user)
-      .where(and(eq(user.id, input.id), eq(user.workspaceId, useWorkspace())))
+      .where(and(eq(user.id, input.id), eq(user.listId, useList())))
       .execute()
       .then((rows) => rows[0])
   }),
@@ -61,7 +60,7 @@ export const fromEmail = zod(Schema.pick({ email: true }), async (input) =>
       .select()
       .from(user)
       .where(
-        and(eq(user.email, input.email), eq(user.workspaceId, useWorkspace())),
+        and(eq(user.email, input.email), eq(user.listId, useList())),
       )
       .execute()
       .then((rows) => rows[0])

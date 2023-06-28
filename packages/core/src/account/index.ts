@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2"
 import { eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
+import invariant from "tiny-invariant"
 import type { z } from "zod"
 
 import { dbNow } from "../util/datetime.ts"
@@ -28,7 +29,6 @@ export const create = zod(
         email: input.email,
         createdAt: dbNow(),
         updatedAt: dbNow(),
-        deletedAt: null,
       }
       await tx.insert(account).values(data)
       return data
@@ -37,12 +37,13 @@ export const create = zod(
 
 export const fromID = zod(Schema.pick({ id: true }), (input) =>
   useTransaction(async (tx) => {
-    return tx
+    const [data] = await tx
       .select()
       .from(account)
       .where(eq(account.id, input.id))
       .execute()
-      .then((rows) => rows[0])
+    invariant(data, "Account not found")
+    return data
   }),
 )
 

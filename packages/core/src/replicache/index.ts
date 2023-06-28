@@ -31,7 +31,6 @@ export const create = zod(Schema.pick({ id: true }), (input) =>
       lastMutationId: 0,
       createdAt: dbNow(),
       updatedAt: dbNow(),
-      deletedAt: null,
     }
     await tx.insert(replicache_client).values(client)
     return client

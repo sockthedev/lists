@@ -1,49 +1,44 @@
 import { createId } from "@paralleldrive/cuid2"
 import { eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
+import invariant from "tiny-invariant"
 import type { z } from "zod"
 
 import { db } from "../drizzle/index.ts"
 import { dbNow } from "../util/datetime.ts"
 import { useTransaction } from "../util/transaction.ts"
 import { zod } from "../util/zod.ts"
-import { workspace } from "./workspace.sql.ts"
+import { list } from "./list.sql.ts"
 
-export * as Workspace from "./index.ts"
+export * as List from "./index.ts"
 
-const Schema = createSelectSchema(workspace, {
+const Schema = createSelectSchema(list, {
   id: (schema) => schema.id.cuid2(),
 })
 
 export type Type = z.infer<typeof Schema>
 
 export const create = zod(
-  Schema.pick({ slug: true, id: true }).partial({
+  Schema.pick({ name: true, id: true }).partial({
     id: true,
-    slug: true,
   }),
   (input) =>
     useTransaction(async (tx) => {
-      const id = input.id ?? createId()
       const data: Type = {
-        id,
-        slug: input.slug ?? id,
+        id: input.id ?? createId(),
+        name: input.name,
         createdAt: dbNow(),
         updatedAt: dbNow(),
-        deletedAt: null,
       }
-      await tx.insert(workspace).values(data)
+      await tx.insert(list).values(data)
       return data
     }),
 )
 
 export const fromID = zod(Schema.shape.id, (id) =>
-  db.transaction((tx) =>
-    tx
-      .select()
-      .from(workspace)
-      .where(eq(workspace.id, id))
-      .execute()
-      .then((rows) => rows[0]),
-  ),
+  db.transaction(async (tx) => {
+    const [data] = await tx.select().from(list).where(eq(list.id, id)).execute()
+    invariant(data, "List not found")
+    return data
+  }),
 )

@@ -1,11 +1,12 @@
-import { useActor, useWorkspace } from "@pwa/core/actor.ts"
+import { useActor, useList } from "@pwa/core/actor.ts"
+import { list } from "@pwa/core/list/list.sql.ts"
 import { Replicache } from "@pwa/core/replicache/index.ts"
 import { replicache_cvr } from "@pwa/core/replicache/replicache.sql.ts"
+import { todo } from "@pwa/core/todo/todo.sql.ts"
 import { user } from "@pwa/core/user/user.sql.ts"
 import { dbNow } from "@pwa/core/util/datetime.ts"
 import { createId } from "@pwa/core/util/sql.ts"
 import { useTransaction } from "@pwa/core/util/transaction.ts"
-import { workspace } from "@pwa/core/workspace/workspace.sql.ts"
 import { and, eq, gt, inArray } from "drizzle-orm"
 import { mapValues } from "remeda"
 import { ApiHandler, useJsonBody } from "sst/node/api"
@@ -58,7 +59,7 @@ export const handler = ApiHandler(async () => {
     ])
 
     if (actor.type === "user") {
-      const workspaceId = useWorkspace()
+      const listId = useList()
 
       console.log("syncing user", actor.properties)
 
@@ -69,8 +70,9 @@ export const handler = ApiHandler(async () => {
       }
 
       const tables = {
-        workspace,
+        list,
         user,
+        todo,
       }
 
       const results: [string, { id: string; updatedAt: string }[]][] = []
@@ -78,14 +80,7 @@ export const handler = ApiHandler(async () => {
         const rows = await tx
           .select({ id: table.id, updatedAt: table.updatedAt })
           .from(table)
-          .where(
-            and(
-              eq(
-                "workspaceId" in table ? table.workspaceId : table.id,
-                workspaceId,
-              ),
-            ),
-          )
+          .where(and(eq("listId" in table ? table.listId : table.id, listId)))
           .execute()
         results.push([name, rows])
       }
@@ -146,14 +141,11 @@ export const handler = ApiHandler(async () => {
             actor,
             createdAt: dbNow(),
             updatedAt: dbNow(),
-            deletedAt: null,
           })
           .execute()
         result.cvr = nextCvrID
       }
-    }
-
-    if (actor.type === "account") {
+    } else if (actor.type === "account") {
       console.log("syncing account", actor.properties)
       if (new Date(lastSync).getTime() === 0) {
         result.patch.push({
@@ -171,19 +163,19 @@ export const handler = ApiHandler(async () => {
         )
         .execute()
 
-      const workspaces = await tx
+      const lists = await tx
         .select()
-        .from(workspace)
-        .leftJoin(user, eq(user.workspaceId, workspace.id))
+        .from(list)
+        .leftJoin(user, eq(user.listId, list.id))
         .where(
           and(
             eq(user.email, actor.properties.email),
-            gt(workspace.updatedAt, lastSync),
+            gt(list.updatedAt, lastSync),
           ),
         )
         .execute()
-        .then((rows) => rows.map((row) => row.workspace))
-      console.log("workspaces", workspaces)
+        .then((rows) => rows.map((row) => row.list))
+      console.log("lists", lists)
 
       result.patch.push(
         ...users.map((item) => ({
@@ -191,14 +183,14 @@ export const handler = ApiHandler(async () => {
           key: `/user/${item.id}`,
           value: item,
         })),
-        ...workspaces.map((item) => ({
+        ...lists.map((item) => ({
           op: "put",
-          key: `/workspace/${item.id}`,
+          key: `/list/${item.id}`,
           value: item,
         })),
       )
       result.lastSync =
-        [...workspaces, ...users].sort((a, b) =>
+        [...lists, ...users].sort((a, b) =>
           b.updatedAt > a.updatedAt ? 1 : -1,
         )[0]?.updatedAt || lastSync
     }

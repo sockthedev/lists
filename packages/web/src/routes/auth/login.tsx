@@ -37,6 +37,7 @@ export function Login() {
 
   function onEmailSubmit(values: z.infer<typeof emailFormSchema>) {
     console.log(values)
+    throw new Error("Not implemented")
   }
 
   return (
@@ -45,27 +46,27 @@ export function Login() {
         Sign in to Lists
       </h2>
 
-      <div>
+      <div className="mt-6">
         <Form {...emailForm}>
           <form onSubmit={emailForm.handleSubmit(onEmailSubmit)}>
-            <div className="mt-2">
-              <FormField
-                name="email"
-                control={emailForm.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" autoComplete="email" {...field} />
-                    </FormControl>
+            <FormField
+              name="email"
+              control={emailForm.control}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" autoComplete="email" {...field} />
+                  </FormControl>
+                  {!fieldState.error && (
                     <FormDescription>
-                      Please provide your email address to sign in
+                      We'll send you an email with a sign in link.
                     </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="mt-6 grid grid-cols-2 gap-4">
               <Button type="submit" size="sm" className="gap-3">
                 <FontAwesomeIcon

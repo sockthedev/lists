@@ -2,7 +2,7 @@ import mitt from "mitt"
 
 type Events = {
   poke: {
-    workspaceId: string
+    listId: string
   }
 }
 

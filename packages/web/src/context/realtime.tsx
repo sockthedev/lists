@@ -3,7 +3,7 @@ import React from "react"
 import { Replicache } from "replicache"
 import invariant from "tiny-invariant"
 
-import { WorkspaceStore } from "@/data/workspace.ts"
+import { ListStore } from "@/data/list.ts"
 
 import { useAuth } from "./auth.tsx"
 import { bus } from "./bus.tsx"
@@ -12,11 +12,11 @@ let connectionId = 0
 
 export function RealtimeProvider() {
   const { account } = useAuth()
-  const [workspaces, setWorkspaces] = React.useState<string[]>([])
+  const [lists, setLists] = React.useState<string[]>([])
 
   React.useEffect(() => {
     if (!account) {
-      setWorkspaces([])
+      setLists([])
     }
   }, [account])
 
@@ -33,10 +33,10 @@ export function RealtimeProvider() {
       pushURL: import.meta.env.VITE_API_URL + "/replicache/push",
     })
 
-    replicache.subscribe(WorkspaceStore.list(), {
+    replicache.subscribe(ListStore.list(), {
       onData(list) {
         console.log("🤖 RealtimeProvider(replicache): workspaces", list)
-        setWorkspaces(list.map((w) => w.id))
+        setLists(list.map((w) => w.id))
       },
     })
 
@@ -46,7 +46,7 @@ export function RealtimeProvider() {
   }, [account])
 
   React.useEffect(() => {
-    if (!account || workspaces.length === 0) {
+    if (!account || lists.length === 0) {
       return
     }
 
@@ -77,13 +77,13 @@ export function RealtimeProvider() {
       connection = client.new_connection(config)
       connection.on("connect", async () => {
         console.log(`🤖 RealtimeProvider(${connectionId}): WS connected`)
-        for (const workspace of workspaces) {
+        for (const list of lists) {
           console.log(
             `🤖 RealtimeProvider(${connectionId}): WS subscribing to`,
-            workspace,
+            list,
           )
           await connection.subscribe(
-            `pwa/${import.meta.env.VITE_STAGE}/${workspace}/#`,
+            `pwa/${import.meta.env.VITE_STAGE}/${list}/#`,
             mqtt.QoS.AtLeastOnce,
           )
         }
@@ -93,13 +93,13 @@ export function RealtimeProvider() {
       connection.on("resume", console.log)
       connection.on("message", (fullTopic, payload) => {
         const splits = fullTopic.split("/")
-        const workspaceId = splits[2]
-        invariant(workspaceId, "No workspace ID")
+        const listId = splits[2]
+        invariant(listId, "No list id")
         const topic = splits[3]
         const message = new TextDecoder("utf8").decode(new Uint8Array(payload))
         const parsed = JSON.parse(message)
         if (topic === "poke") {
-          bus.emit("poke", { workspaceId })
+          bus.emit("poke", { listId })
         }
         console.log(
           `🤖 RealtimeProvider(${connectionId}): WS got message`,
@@ -119,7 +119,7 @@ export function RealtimeProvider() {
       console.log(`🤖 RealtimeProvider(${connectionId}): disconnecting`)
       connection?.disconnect()
     }
-  }, [account, workspaces])
+  }, [account, lists])
 
   return null
 }

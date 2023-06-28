@@ -10,7 +10,7 @@ export async function handler(evt: any) {
     .toString()
     .split(";")
 
-  const workspaces = [] as string[]
+  const lists: string[] = []
 
   for (const token of tokens) {
     const session = Session.verify(token)
@@ -18,15 +18,15 @@ export async function handler(evt: any) {
     const account = assertActor("account")
     const rows = await db
       .select({
-        workspaceId: user.workspaceId,
+        listId: user.listId,
       })
       .from(user)
       .where(eq(user.email, account.properties.email))
       .execute()
-    workspaces.push(...rows.map((r) => r.workspaceId))
+    lists.push(...rows.map((r) => r.listId))
   }
 
-  console.log("🤖 auth-iot: workspaces", workspaces)
+  console.log("🤖 auth-iot: lists", lists)
 
   const policy = {
     isAuthenticated: true, //A Boolean that determines whether client can connect.
@@ -36,7 +36,7 @@ export async function handler(evt: any) {
     policyDocuments: [
       {
         Version: "2012-10-17",
-        Statement: workspaces.flatMap((workspaceID) => [
+        Statement: lists.flatMap((listId) => [
           {
             Action: "iot:Connect",
             Effect: "Allow",
@@ -45,12 +45,12 @@ export async function handler(evt: any) {
           {
             Action: "iot:Receive",
             Effect: "Allow",
-            Resource: `arn:aws:iot:${process.env.AWS_REGION}:${process.env.ACCOUNT}:topic/${Config.APP}/${Config.STAGE}/${workspaceID}/*`,
+            Resource: `arn:aws:iot:${process.env.AWS_REGION}:${process.env.ACCOUNT}:topic/${Config.APP}/${Config.STAGE}/${listId}/*`,
           },
           {
             Action: "iot:Subscribe",
             Effect: "Allow",
-            Resource: `arn:aws:iot:${process.env.AWS_REGION}:${process.env.ACCOUNT}:topicfilter/${Config.APP}/${Config.STAGE}/${workspaceID}/*`,
+            Resource: `arn:aws:iot:${process.env.AWS_REGION}:${process.env.ACCOUNT}:topicfilter/${Config.APP}/${Config.STAGE}/${listId}/*`,
           },
         ]),
       },

@@ -5,14 +5,14 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core"
 
-import { datetimes, id } from "../util/sql.ts"
+import { id, timestamps } from "../util/sql.ts"
 
 export const account = mysqlTable(
   "account",
   {
     ...id,
     email: varchar("email", { length: 255 }).notNull(),
-    ...datetimes,
+    ...timestamps,
   },
   (user) => ({
     primary: primaryKey(user.id),

@@ -7,17 +7,18 @@ import { useAuth } from "./auth.tsx"
 import { bus } from "./bus.tsx"
 
 const mutators = new Client<ServerType>()
-  // .mutation("connect", async (_tx, _input) => {})
-  // .mutation("app_stage_sync", async (_tx, _input) => {})
+  .mutation("create_list", async (_tx, _input) => {
+    // _tx.put(`list/${_input.id}`, JSON.stringify(_input))
+  })
   .build()
 
 const ReplicacheContext = React.createContext<
   ReturnType<typeof createReplicache>
 >(null as any)
 
-function createReplicache(input: { workspaceId: string; token: string }) {
+function createReplicache(input: { listId: string; token: string }) {
   const replicache = new Replicache({
-    name: input.workspaceId,
+    name: input.listId,
     auth: `Bearer ${input.token}`,
     licenseKey: "l75bdf9ee8d1e453697e2948b3114d44c",
     pullURL: `${import.meta.env.VITE_API_URL}/replicache/pull`,
@@ -41,13 +42,13 @@ function createReplicache(input: { workspaceId: string; token: string }) {
 
   const oldPuller = replicache.puller
   replicache.puller = (opts) => {
-    opts.headers.append("x-pwa-workspace", input.workspaceId)
+    opts.headers.append("x-list-id", input.listId)
     return oldPuller(opts)
   }
 
   const oldPusher = replicache.pusher
   replicache.pusher = (opts) => {
-    opts.headers.append("x-pwa-workspace", input.workspaceId)
+    opts.headers.append("x-list-id", input.listId)
     return oldPusher(opts)
   }
 
@@ -56,7 +57,7 @@ function createReplicache(input: { workspaceId: string; token: string }) {
 
 export function ReplicacheProvider(props: {
   accountId: string
-  workspaceId: string
+  listId: string
   children: React.ReactNode
 }) {
   const { account } = useAuth()
@@ -64,14 +65,14 @@ export function ReplicacheProvider(props: {
 
   const rep = React.useMemo(() => {
     if (!token) return null
-    return createReplicache({ workspaceId: props.workspaceId, token })
-  }, [token, props.workspaceId])
+    return createReplicache({ listId: props.listId, token })
+  }, [token, props.listId])
 
   React.useEffect(() => {
     if (!rep) return
 
-    const pokeHandler = (properties: { workspaceId: string }) => {
-      if (properties.workspaceId !== props.workspaceId) return
+    const pokeHandler = (properties: { listId: string }) => {
+      if (properties.listId !== props.listId) return
       rep.pull()
     }
 
@@ -81,7 +82,7 @@ export function ReplicacheProvider(props: {
       bus.off("poke", pokeHandler)
       rep.close()
     }
-  }, [rep, props.workspaceId])
+  }, [rep, props.listId])
 
   if (!rep) {
     return null

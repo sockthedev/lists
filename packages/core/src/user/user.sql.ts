@@ -6,18 +6,18 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core"
 
-import { datetimes, workspaceId } from "../util/sql.ts"
+import { listId, timestamps } from "../util/sql.ts"
 
 export const user = mysqlTable(
   "user",
   {
-    ...workspaceId,
+    ...listId,
     email: varchar("email", { length: 255 }).notNull(),
     role: mysqlEnum("role", ["owner", "admin", "viewer"]).notNull(),
-    ...datetimes,
+    ...timestamps,
   },
   (user) => ({
-    primary: primaryKey(user.id, user.workspaceId),
-    email: uniqueIndex("email").on(user.email, user.workspaceId),
+    primary: primaryKey(user.id, user.listId),
+    email: uniqueIndex("email").on(user.email, user.listId),
   }),
 )

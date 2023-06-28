@@ -1,8 +1,9 @@
 import { createId } from "@paralleldrive/cuid2"
+import { desc, eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
 import type { z } from "zod"
 
-import { useWorkspace } from "../actor.ts"
+import { useList } from "../actor.ts"
 import { dbNow } from "../util/datetime.ts"
 import { useTransaction } from "../util/transaction.ts"
 import { zod } from "../util/zod.ts"
@@ -24,14 +25,24 @@ export const create = zod(
     useTransaction(async (tx) => {
       const data: Type = {
         id: input.id ?? createId(),
-        workspaceId: useWorkspace(),
+        listId: useList(),
         text: input.text,
         createdAt: dbNow(),
         updatedAt: dbNow(),
-        deletedAt: null,
         doneAt: null,
       }
       await tx.insert(todo).values(data)
       return data
     }),
 )
+
+export function list() {
+  return useTransaction(async (tx) => {
+    return tx
+      .select()
+      .from(todo)
+      .where(eq(todo.listId, useList()))
+      .orderBy(desc(todo.createdAt))
+      .execute()
+  })
+}

@@ -12,27 +12,27 @@ export async function useApiAuth() {
     provideActor(session)
   }
 
-  const workspaceId = useHeader("x-pwa-workspace")
-  if (workspaceId) {
-    console.log("auth workspace", workspaceId)
+  const listId = useHeader("x-list-id")
+  if (listId) {
+    console.log("auth list", listId)
     const account = assertActor("account")
     provideActor({
       type: "system",
       properties: {
-        workspaceId,
+        listId,
       },
     })
     const user = await User.fromEmail({ email: account.properties.email })
     invariant(
       user,
-      `User not found for email ${account.properties.email} in workspace ${workspaceId}`,
+      `User not found for email ${account.properties.email} in list ${listId}`,
     )
 
     console.log("using user actor", user.id)
     provideActor({
       type: "user",
       properties: {
-        workspaceId,
+        listId,
         userId: user.id,
       },
     })

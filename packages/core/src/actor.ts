@@ -20,7 +20,7 @@ export const userActorSchema = z.object({
   type: z.literal("user"),
   properties: z.object({
     userId: z.string().cuid2(),
-    workspaceId: z.string().cuid2(),
+    listId: z.string().cuid2(),
   }),
 })
 export type UserActor = z.infer<typeof userActorSchema>
@@ -28,7 +28,7 @@ export type UserActor = z.infer<typeof userActorSchema>
 export const systemActorSchema = z.object({
   type: z.literal("system"),
   properties: z.object({
-    workspaceId: z.string().cuid2(),
+    listId: z.string().cuid2(),
   }),
 })
 export type SystemActor = z.infer<typeof systemActorSchema>
@@ -55,8 +55,8 @@ export function assertActor<T extends Actor["type"]>(type: T) {
   return actor as Extract<Actor, { type: T }>
 }
 
-export function useWorkspace() {
+export function useList() {
   const actor = useActor()
-  if ("workspaceId" in actor.properties) return actor.properties.workspaceId
-  throw new Error(`Expected actor to have workspaceId`)
+  if ("listId" in actor.properties) return actor.properties.listId
+  throw new Error(`Expected actor to have listId`)
 }

@@ -1,8 +1,5 @@
 import { Account } from "@pwa/core/account/index.ts"
-import { provideActor } from "@pwa/core/actor.ts"
-import { User } from "@pwa/core/user/index.ts"
 import { useTransaction } from "@pwa/core/util/transaction.ts"
-import { Workspace } from "@pwa/core/workspace/index.ts"
 import { Config } from "sst/node/config"
 import { AuthHandler, GoogleAdapter } from "sst/node/future/auth"
 import invariant from "tiny-invariant"
@@ -36,20 +33,6 @@ export const handler = AuthHandler({
         })
 
         accountId = account.id
-
-        const workspace = await Workspace.create({})
-
-        provideActor({
-          type: "system",
-          properties: {
-            workspaceId: workspace.id,
-          },
-        })
-
-        await User.create({
-          email: email!,
-          role: "owner",
-        })
       })
     }
 

@@ -16,12 +16,15 @@ import { H1 } from "@/components/ui/h1"
 import { Input } from "@/components/ui/input"
 import { PageLayout } from "@/components/ui/page-layout"
 import { Seperator } from "@/components/ui/seperator"
+import { useLists } from "@/context/replicache-root"
 
 const createListFormSchema = z.object({
   name: z.string().min(1, "Please enter a name for your list."),
 })
 
 export function UserDashboard() {
+  const lists = useLists()
+
   const createListForm = useForm<z.infer<typeof createListFormSchema>>({
     resolver: zodResolver(createListFormSchema),
     defaultValues: {
@@ -31,12 +34,20 @@ export function UserDashboard() {
 
   function onCreateListSubmit(values: z.infer<typeof createListFormSchema>) {
     console.log(values)
-    throw new Error("Not implemented")
+    // replicache.mutate.create_list({
+    //   name: values.name,
+    // })
   }
 
   return (
     <PageLayout.NarrowContent>
       <H1>My Lists</H1>
+
+      {lists.map((list) => (
+        <div key={list.id}>
+          <p>{list.name}</p>
+        </div>
+      ))}
 
       <Seperator label="Create a new list" />
 

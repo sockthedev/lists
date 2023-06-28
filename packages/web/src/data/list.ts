@@ -3,7 +3,7 @@ import type { ReadTransaction } from "replicache"
 
 export * as ListStore from "./list.ts"
 
-export function list() {
+export function all() {
   return async (tx: ReadTransaction) => {
     const result = await tx.scan({ prefix: `/list/` }).toArray()
     return (result || []) as unknown as List.Type[]

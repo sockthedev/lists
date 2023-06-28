@@ -2,19 +2,20 @@ import { Client } from "@lists/functions/replicache/framework.ts"
 import type { ServerType } from "@lists/functions/replicache/server.ts"
 import React from "react"
 import { Replicache } from "replicache"
+import invariant from "tiny-invariant"
 
 import { useAuth } from "./auth.tsx"
 import { bus } from "./bus.tsx"
 
 const mutators = new Client<ServerType>()
-  .mutation("create_list", async (_tx, _input) => {
-    // _tx.put(`list/${_input.id}`, JSON.stringify(_input))
-  })
+  .mutation("create_list", async (_tx, _input) => {})
   .build()
 
-const ReplicacheContext = React.createContext<
-  ReturnType<typeof createReplicache>
->(null as any)
+type ReplicacheListInstance = ReturnType<typeof createReplicache>
+
+const ReplicacheListContext = React.createContext<ReplicacheListInstance>(
+  null as any,
+)
 
 function createReplicache(input: { listId: string; token: string }) {
   const replicache = new Replicache({
@@ -27,18 +28,18 @@ function createReplicache(input: { listId: string; token: string }) {
     mutators,
   })
 
-  // TODO: Don't think we need this? Looks like it is just debugging. Perhaps
-  // we could wrap it with a DEVELOPMENT flag?
-  replicache.subscribe(
-    (tx) => {
-      return tx.scan({ prefix: "" }).entries().toArray()
-    },
-    {
-      onData: console.log,
-    },
-  )
+  if (import.meta.env.VITE_STAGE !== "production") {
+    replicache.subscribe(
+      (tx) => {
+        return tx.scan({ prefix: "" }).entries().toArray()
+      },
+      {
+        onData: console.log,
+      },
+    )
+  }
 
-  // Wrap the replicache push/pull methods to add the workspaceId header
+  // Wrap the replicache push/pull methods to add the listId to headers
 
   const oldPuller = replicache.puller
   replicache.puller = (opts) => {
@@ -55,50 +56,55 @@ function createReplicache(input: { listId: string; token: string }) {
   return replicache
 }
 
-export function ReplicacheProvider(props: {
-  accountId: string
+export function ReplicacheListProvider(props: {
   listId: string
   children: React.ReactNode
 }) {
   const { account } = useAuth()
-  const token = account?.token
+  invariant(
+    account,
+    "ReplicacheListProvider must be used within an active user session",
+  )
 
-  const rep = React.useMemo(() => {
-    if (!token) return null
-    return createReplicache({ listId: props.listId, token })
-  }, [token, props.listId])
+  const [replicache, setReplicache] =
+    React.useState<ReplicacheListInstance | null>(null)
 
   React.useEffect(() => {
-    if (!rep) return
+    const _replicache = createReplicache({
+      listId: props.listId,
+      token: account.token,
+    })
+
+    setReplicache(_replicache)
 
     const pokeHandler = (properties: { listId: string }) => {
       if (properties.listId !== props.listId) return
-      rep.pull()
+      _replicache.pull()
     }
 
     bus.on("poke", pokeHandler)
 
     return () => {
       bus.off("poke", pokeHandler)
-      rep.close()
+      _replicache.close()
     }
-  }, [rep, props.listId])
+  }, [props.listId, account.token])
 
-  if (!rep) {
+  if (!replicache) {
     return null
   }
 
   return (
-    <ReplicacheContext.Provider value={rep}>
+    <ReplicacheListContext.Provider value={replicache}>
       {props.children}
-    </ReplicacheContext.Provider>
+    </ReplicacheListContext.Provider>
   )
 }
 
-export function useReplicache() {
-  const result = React.useContext(ReplicacheContext)
-  if (!result) {
-    throw new Error("useReplicache must be used within a ReplicacheProvider")
-  }
-  return result
-}
+// export function useReplicache() {
+//   const result = React.useContext(ReplicacheListContext)
+//   if (!result) {
+//     throw new Error("useReplicache must be used within a ReplicacheProvider")
+//   }
+//   return result
+// }

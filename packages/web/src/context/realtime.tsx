@@ -1,49 +1,16 @@
 import { iot, mqtt } from "aws-iot-device-sdk-v2"
 import React from "react"
-import { Replicache } from "replicache"
 import invariant from "tiny-invariant"
-
-import { ListStore } from "@/data/list.ts"
 
 import { useAuth } from "./auth.tsx"
 import { bus } from "./bus.tsx"
+import { useLists } from "./replicache-root.tsx"
 
 let connectionId = 0
 
-export function RealtimeProvider() {
+export function RealtimeProvider(props: { children: React.ReactNode }) {
   const { account } = useAuth()
-  const [lists, setLists] = React.useState<string[]>([])
-
-  React.useEffect(() => {
-    if (!account) {
-      setLists([])
-    }
-  }, [account])
-
-  React.useEffect(() => {
-    if (!account) {
-      return
-    }
-
-    const replicache = new Replicache({
-      name: account.accountId,
-      auth: `Bearer ${account.token}`,
-      licenseKey: "l75bdf9ee8d1e453697e2948b3114d44c",
-      pullURL: import.meta.env.VITE_API_URL + "/replicache/pull",
-      pushURL: import.meta.env.VITE_API_URL + "/replicache/push",
-    })
-
-    replicache.subscribe(ListStore.list(), {
-      onData(list) {
-        console.log("🤖 RealtimeProvider(replicache): workspaces", list)
-        setLists(list.map((w) => w.id))
-      },
-    })
-
-    return () => {
-      replicache.close()
-    }
-  }, [account])
+  const lists = useLists()
 
   React.useEffect(() => {
     if (!account || lists.length === 0) {
@@ -121,5 +88,5 @@ export function RealtimeProvider() {
     }
   }, [account, lists])
 
-  return null
+  return props.children
 }

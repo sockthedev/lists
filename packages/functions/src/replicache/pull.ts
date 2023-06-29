@@ -197,8 +197,8 @@ export const handler = ApiHandler(async () => {
 
     return {
       statusCode: 200,
+      // TODO: Can we get a Replicache type to represent this response?
       body: JSON.stringify({
-        // TODO: Can we get a Replicache type to represent this response?
         lastMutationID: client?.lastMutationId || 0,
         patch: result.patch,
         cookie: {

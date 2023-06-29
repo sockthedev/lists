@@ -7,9 +7,7 @@ import invariant from "tiny-invariant"
 import { useAuth } from "./auth.tsx"
 import { bus } from "./bus.tsx"
 
-const mutators = new Client<ServerType>()
-  .mutation("create_list", async (_tx, _input) => {})
-  .build()
+const mutators = new Client<ServerType>().build()
 
 type ReplicacheListInstance = ReturnType<typeof createReplicache>
 
@@ -24,7 +22,7 @@ function createReplicache(input: { listId: string; token: string }) {
     licenseKey: "l75bdf9ee8d1e453697e2948b3114d44c",
     pullURL: `${import.meta.env.VITE_API_URL}/replicache/pull`,
     pushURL: `${import.meta.env.VITE_API_URL}/replicache/push`,
-    pullInterval: 65 * 1000,
+    pullInterval: 30 * 1000,
     mutators,
   })
 

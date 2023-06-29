@@ -8,7 +8,7 @@ import { useLists } from "./replicache-root.tsx"
 
 let connectionId = 0
 
-export function RealtimeProvider(props: { children: React.ReactNode }) {
+export function RealtimeProvider(props: { children: React.ReactElement }) {
   const { account } = useAuth()
   const lists = useLists()
 

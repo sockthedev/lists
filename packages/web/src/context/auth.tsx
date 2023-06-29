@@ -2,13 +2,14 @@ import React from "react"
 import invariant from "tiny-invariant"
 
 export type Account = {
+  [x: string]: unknown
   accountId: string
   email: string
   token: string
 }
 
 type AuthContextType = {
-  account?: Account
+  account: Account | null
   loginUrls: {
     email: () => string
     google: () => string
@@ -75,12 +76,9 @@ export type AuthProviderProps = {
 }
 
 export function AuthProvider(props: AuthProviderProps) {
-  const [account, setAccount] = React.useState<Account>()
-
-  React.useEffect(() => {
+  const account = React.useMemo<Account | null>(() => {
     const fragment = new URLSearchParams(location.hash.substring(1))
     const access_token = fragment.get("access_token")
-
     if (access_token) {
       // Handling an auth callback, this should become the authoritative account
       const _account = decodeToken({ token: access_token })
@@ -89,22 +87,9 @@ export function AuthProvider(props: AuthProviderProps) {
         JSON.stringify(_account, null, 2),
       )
       store.set({ account: _account })
-      setAccount(_account)
-      return
+      return _account
     }
-
-    // No auth callback, but lets check for an account in localstorage
-    const _account = store.get()
-    if (_account) {
-      console.log(
-        "🤖 Auth rehydrating account from localstorage",
-        JSON.stringify(_account, null, 2),
-      )
-      setAccount(_account)
-      return
-    }
-
-    console.log("🤖 No active Auth session")
+    return store.get()
   }, [])
 
   return (

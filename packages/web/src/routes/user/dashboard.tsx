@@ -16,7 +16,7 @@ import { H1 } from "@/components/ui/h1"
 import { Input } from "@/components/ui/input"
 import { PageLayout } from "@/components/ui/page-layout"
 import { Seperator } from "@/components/ui/seperator"
-import { useLists } from "@/context/replicache-root"
+import { useCreateList, useLists } from "@/context/replicache-root"
 
 const createListFormSchema = z.object({
   name: z.string().min(1, "Please enter a name for your list."),
@@ -24,6 +24,7 @@ const createListFormSchema = z.object({
 
 export function UserDashboard() {
   const lists = useLists()
+  const createList = useCreateList()
 
   const createListForm = useForm<z.infer<typeof createListFormSchema>>({
     resolver: zodResolver(createListFormSchema),
@@ -32,11 +33,13 @@ export function UserDashboard() {
     },
   })
 
-  function onCreateListSubmit(values: z.infer<typeof createListFormSchema>) {
+  async function onCreateListSubmit(
+    values: z.infer<typeof createListFormSchema>,
+  ) {
     console.log(values)
-    // replicache.mutate.create_list({
-    //   name: values.name,
-    // })
+    await createList({
+      name: values.name,
+    })
   }
 
   return (

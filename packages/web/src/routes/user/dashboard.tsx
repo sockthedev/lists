@@ -1,30 +1,28 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createId } from "@paralleldrive/cuid2"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { H1 } from "@/components/ui/h1"
 import { Input } from "@/components/ui/input"
 import { PageLayout } from "@/components/ui/page-layout"
 import { Seperator } from "@/components/ui/seperator"
-import { useCreateList, useLists } from "@/context/replicache"
+import { useCreateList, useSubscribeLists } from "@/context/replicache"
 
 const createListFormSchema = z.object({
   name: z.string().min(1, "Please enter a name for your list."),
 })
 
 export function UserDashboard() {
-  const lists = useLists()
+  const lists = useSubscribeLists()
   const createList = useCreateList()
 
   const createListForm = useForm<z.infer<typeof createListFormSchema>>({
@@ -34,13 +32,11 @@ export function UserDashboard() {
     },
   })
 
-  function onCreateListSubmit(values: z.infer<typeof createListFormSchema>) {
-    console.log(values)
-    createList({
-      id: createId(),
-      name: values.name,
-    })
-  }
+  React.useEffect(() => {
+    if (createListForm.formState.isSubmitSuccessful) {
+      createListForm.reset({ name: "" })
+    }
+  }, [createListForm, createListForm.formState.isSubmitSuccessful])
 
   return (
     <PageLayout.NarrowContent>
@@ -52,34 +48,27 @@ export function UserDashboard() {
         </div>
       ))}
 
-      <Seperator label="Create a new list" />
+      <Seperator label="Create" />
 
       <Form {...createListForm}>
-        <form onSubmit={createListForm.handleSubmit(onCreateListSubmit)}>
+        <form onSubmit={createListForm.handleSubmit(createList)}>
           <FormField
             name="name"
             control={createListForm.control}
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input type="text" {...field} />
+                <FormControl onSubmit={createListForm.handleSubmit(createList)}>
+                  <Input type="text" placeholder="Bucket List" {...field} />
                 </FormControl>
                 {!fieldState.error && (
                   <FormDescription>
-                    Provide a descriptive name for your new list
+                    Just type something and hit enter.
                   </FormDescription>
                 )}
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <Button type="submit" size="sm" className="gap-3">
-              Create
-            </Button>
-            <span />
-          </div>
         </form>
       </Form>
     </PageLayout.NarrowContent>

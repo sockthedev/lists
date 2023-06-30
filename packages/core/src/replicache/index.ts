@@ -28,14 +28,14 @@ export const fromId = zod(Schema.pick({ id: true }), (input) =>
 
 export const create = zod(Schema.pick({ id: true }), (input) =>
   useTransaction(async (tx) => {
-    const client: Type = {
+    const data: Type = {
       id: input.id,
       lastMutationId: 0,
       createdAt: dbNow(),
       updatedAt: dbNow(),
     }
-    await tx.insert(replicache_client).values(client)
-    return client
+    await tx.insert(replicache_client).values(data)
+    return data
   }),
 )
 
@@ -46,7 +46,7 @@ export const setLastMutationId = zod(
   }),
   (input) =>
     useTransaction(async (tx) => {
-      return tx
+      await tx
         .update(replicache_client)
         .set({
           lastMutationId: input.lastMutationId,

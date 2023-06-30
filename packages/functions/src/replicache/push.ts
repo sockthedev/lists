@@ -10,13 +10,13 @@ import { server } from "./server.ts"
 export const handler = ApiHandler(async () => {
   await useApiAuth()
 
-  console.log("Pushing for", useActor())
+  console.log("🐑 replicache/push: Pushing for", useActor())
 
   // TODO: We don't actually have strong auth guards within the domain models
 
   // TODO: Use zod to safe parse the body
   const body = useJsonBody()
-  console.log("body", JSON.stringify(body, null, 2))
+  console.log("🐑 replicache/push: body", JSON.stringify(body, null, 2))
 
   await useTransaction(async () => {
     let lastMutationId = await (async function () {
@@ -25,19 +25,22 @@ export const handler = ApiHandler(async () => {
       const client = await Replicache.create({ id: body.clientID })
       return client.lastMutationId
     })()
+    console.log("🐑 replicache/push: lastMutationId", lastMutationId)
 
     for (const mutation of body.mutations) {
-      const expectedMutationID = lastMutationId + 1
+      const nextMutationid = lastMutationId + 1
 
-      if (mutation.id < expectedMutationID) {
+      if (mutation.id < nextMutationid) {
         console.log(
-          `Mutation ${mutation.id} has already been processed - skipping`,
+          `🐑 replicache/push: Mutation ${mutation.id} has already been processed - skipping`,
         )
         continue
       }
 
-      if (mutation.id > expectedMutationID) {
-        console.warn(`Mutation ${mutation.id} is from the future - aborting`)
+      if (mutation.id > nextMutationid) {
+        console.warn(
+          `🐑 replicache/push: Mutation ${mutation.id} is from the future - aborting`,
+        )
         break
       }
 
@@ -48,12 +51,12 @@ export const handler = ApiHandler(async () => {
         console.error(ex)
       }
 
-      lastMutationId = expectedMutationID
+      lastMutationId = nextMutationid
     }
 
     await Replicache.setLastMutationId({
       id: body.clientID,
-      lastMutationId: lastMutationId,
+      lastMutationId,
     })
   })
 

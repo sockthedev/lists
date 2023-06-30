@@ -7,11 +7,28 @@ import { createId } from "@lists/core/util/sql.ts"
 import { useTransaction } from "@lists/core/util/transaction.ts"
 import { eq, inArray } from "drizzle-orm"
 import { mapValues } from "remeda"
+import type { PatchOperation } from "replicache"
 import { ApiHandler, useJsonBody } from "sst/node/api"
+import { z } from "zod"
 
 import { useApiAuth } from "../api.ts"
 
+// Changing this value will cause any previous clients to completely resync. Which is handy if we make significant changes to the schema/data.
 const VERSION = 1
+
+const pullRequestSchema = z.object({
+  clientID: z.string(),
+  profileID: z.string(),
+  cookie: z
+    .object({
+      version: z.number(),
+      cvr: z.string(),
+    })
+    .nullable(),
+  lastMutationID: z.number(),
+  pullVersion: z.number(),
+  schemaVersion: z.string(),
+})
 
 export const handler = ApiHandler(async () => {
   await useApiAuth()
@@ -24,41 +41,40 @@ export const handler = ApiHandler(async () => {
     }
   }
 
-  console.log("syncing account", actor.properties)
+  console.log("🐑 replicache/pull: syncing account", actor.properties)
 
   const body = useJsonBody()
-  console.log("body", JSON.stringify(body, null, 2))
+  console.log("🐑 replicache/pull: body", JSON.stringify(body, null, 2))
+  const pullRequest = pullRequestSchema.parse(body)
 
-  const lastSync =
-    body.cookie && body.cookie.version === VERSION
-      ? body.cookie.lastSync
-      : new Date(0).toISOString()
-  console.log("lastSync", lastSync)
+  const oldCvrId =
+    pullRequest.cookie && pullRequest.cookie.version === VERSION
+      ? pullRequest.cookie.cvr
+      : ""
+  console.log("🐑 replicache/pull: oldCvrId", oldCvrId)
 
-  const oldCvrID =
-    body.cookie && body.cookie.version === VERSION ? body.cookie.cvr : ""
-  console.log("oldCvrID", oldCvrID)
-
-  const result = {
-    patch: [] as any[],
-    lastSync,
-    cvr: oldCvrID,
+  const result: { patch: PatchOperation[]; cvr: string } = {
+    patch: [],
+    cvr: oldCvrId,
   }
 
   return useTransaction(async (tx) => {
     const [client, oldCvr] = await Promise.all([
-      Replicache.fromId({ id: body.clientID }),
+      Replicache.fromId({ id: pullRequest.clientID }),
       // get old cvr
       // TODO: Verify this the CVR actually belongs to the account
       (await tx
         .select({ data: replicache_cvr.data })
         .from(replicache_cvr)
-        .where(eq(replicache_cvr.id, oldCvrID))
+        .where(eq(replicache_cvr.id, oldCvrId))
         .execute()
         .then((rows) => rows[0]?.data ?? {})) || {},
     ])
 
-    if (!oldCvrID) {
+    console.log("🐑 replicache/pull: client", client)
+    console.log("🐑 replicache/pull: oldCvr", oldCvr)
+
+    if (!oldCvrId) {
       result.patch.push({
         op: "clear",
       })
@@ -78,6 +94,7 @@ export const handler = ApiHandler(async () => {
           .from(table)
           .where(eq(list_user.accountId, actor.properties.accountId))
           .execute()
+        console.log("🐑 replicache/pull: found list_users", rows)
         results.push([name, rows])
       } else if (table === list) {
         const rows = await tx
@@ -86,6 +103,7 @@ export const handler = ApiHandler(async () => {
           .innerJoin(list_user, eq(list_user.listId, table.id))
           .where(eq(list_user.accountId, actor.properties.accountId))
           .execute()
+        console.log("🐑 replicache/pull: found lists", rows)
         results.push([name, rows])
       } else if (table === todo) {
         const rows = await tx
@@ -94,6 +112,7 @@ export const handler = ApiHandler(async () => {
           .innerJoin(list_user, eq(list_user.listId, table.listId))
           .where(eq(list_user.accountId, actor.properties.accountId))
           .execute()
+        console.log("🐑 replicache/pull: found todos", rows)
         results.push([name, rows])
       } else {
         throw new Error(`Unhandled table ${name}`)
@@ -115,10 +134,10 @@ export const handler = ApiHandler(async () => {
       toPut[name] = arr
     }
     console.log(
-      "toPut",
+      "🐑 replicache/pull: toPut",
       mapValues(toPut, (value) => value.length),
     )
-    console.log("toDel", oldCvr)
+    console.log("🐑 replicache/pull: toDel", oldCvr)
 
     // new data
     for (const [name, ids] of Object.entries(toPut)) {
@@ -147,18 +166,19 @@ export const handler = ApiHandler(async () => {
     }
 
     if (result.patch.length > 0) {
-      const nextCvrID = createId()
+      const nextCvrId = createId()
       await tx
         .insert(replicache_cvr)
         .values({
-          id: nextCvrID,
+          id: nextCvrId,
           data: nextCvr,
           actor,
           createdAt: dbNow(),
           updatedAt: dbNow(),
         })
         .execute()
-      result.cvr = nextCvrID
+      result.cvr = nextCvrId
+      console.log("🐑 replicache/pull: inserted cvr", nextCvrId)
     }
 
     return {
@@ -169,7 +189,6 @@ export const handler = ApiHandler(async () => {
         patch: result.patch,
         cookie: {
           version: VERSION,
-          lastSync: result.lastSync,
           cvr: result.cvr,
         },
       }),

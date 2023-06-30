@@ -12,7 +12,7 @@
     "typecheck": "pnpm -r run --aggregate-output --parallel tsc"
   },
   "devDependencies": {
-    "@remix-run/eslint-config": "1.18.0",
+    "@remix-run/eslint-config": "1.18.1",
     "@tsconfig/node16": "^16.1.0",
     "aws-cdk-lib": "2.84.0",
     "constructs": "10.1.156",

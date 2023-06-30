@@ -12,6 +12,9 @@ import { ApiHandler, useJsonBody } from "sst/node/api"
 import { z } from "zod"
 
 import { useApiAuth } from "../api.ts"
+import { log } from "../log.ts"
+
+const clog = log.context("replicache/pull")
 
 // Changing this value will cause any previous clients to completely resync. Which is handy if we make significant changes to the schema/data.
 const VERSION = 1
@@ -41,17 +44,17 @@ export const handler = ApiHandler(async () => {
     }
   }
 
-  console.log("🐑 replicache/pull: syncing account", actor.properties)
+  clog.debug("syncing account", actor.properties)
 
   const body = useJsonBody()
-  console.log("🐑 replicache/pull: body", JSON.stringify(body, null, 2))
+  clog.debug("body", body)
   const pullRequest = pullRequestSchema.parse(body)
 
   const oldCvrId =
     pullRequest.cookie && pullRequest.cookie.version === VERSION
       ? pullRequest.cookie.cvr
       : ""
-  console.log("🐑 replicache/pull: oldCvrId", oldCvrId)
+  clog.debug("oldCvrId", oldCvrId)
 
   const result: { patch: PatchOperation[]; cvr: string } = {
     patch: [],
@@ -71,8 +74,8 @@ export const handler = ApiHandler(async () => {
         .then((rows) => rows[0]?.data ?? {})) || {},
     ])
 
-    console.log("🐑 replicache/pull: client", client)
-    console.log("🐑 replicache/pull: oldCvr", oldCvr)
+    clog.debug("client", client)
+    clog.debug("oldCvr", oldCvr)
 
     if (!oldCvrId) {
       result.patch.push({
@@ -94,7 +97,7 @@ export const handler = ApiHandler(async () => {
           .from(table)
           .where(eq(list_user.accountId, actor.properties.accountId))
           .execute()
-        console.log("🐑 replicache/pull: found list_users", rows)
+        clog.debug("list_users", rows)
         results.push([name, rows])
       } else if (table === list) {
         const rows = await tx
@@ -103,7 +106,7 @@ export const handler = ApiHandler(async () => {
           .innerJoin(list_user, eq(list_user.listId, table.id))
           .where(eq(list_user.accountId, actor.properties.accountId))
           .execute()
-        console.log("🐑 replicache/pull: found lists", rows)
+        clog.debug("lists", rows)
         results.push([name, rows])
       } else if (table === todo) {
         const rows = await tx
@@ -112,7 +115,7 @@ export const handler = ApiHandler(async () => {
           .innerJoin(list_user, eq(list_user.listId, table.listId))
           .where(eq(list_user.accountId, actor.properties.accountId))
           .execute()
-        console.log("🐑 replicache/pull: found todos", rows)
+        clog.debug("todos", rows)
         results.push([name, rows])
       } else {
         throw new Error(`Unhandled table ${name}`)
@@ -133,11 +136,11 @@ export const handler = ApiHandler(async () => {
       }
       toPut[name] = arr
     }
-    console.log(
-      "🐑 replicache/pull: toPut",
+    clog.debug(
+      "toPut",
       mapValues(toPut, (value) => value.length),
     )
-    console.log("🐑 replicache/pull: toDel", oldCvr)
+    clog.debug("toDel", oldCvr)
 
     // new data
     for (const [name, ids] of Object.entries(toPut)) {
@@ -178,7 +181,7 @@ export const handler = ApiHandler(async () => {
         })
         .execute()
       result.cvr = nextCvrId
-      console.log("🐑 replicache/pull: inserted cvr", nextCvrId)
+      clog.debug("inserted cvr", nextCvrId)
     }
 
     return {

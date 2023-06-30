@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "deps:update:all": "sst update && pnpm install && pnpm up -i -L '!aws-cdk-lib' '!constructs'",
+    "deps:update": "sst update && pnpm install && pnpm up -i -L '!aws-cdk-lib' '!constructs'",
     "db:push": "pnpm --filter '@lists/core' db:push",
     "dev:backend": "sst dev",
     "dev:web": "pnpm --filter '@lists/web' dev",
-    "typecheck": "tsc",
-    "typecheck:all": "pnpm -r run --aggregate-output --parallel typecheck"
+    "tsc": "tsc",
+    "typecheck": "pnpm -r run --aggregate-output --parallel tsc"
   },
   "devDependencies": {
     "@remix-run/eslint-config": "1.18.0",
@@ -20,7 +20,7 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
-    "sst": "2.17.6",
+    "sst": "2.18.0",
     "typescript": "^5.1.6"
   },
   "workspaces": [

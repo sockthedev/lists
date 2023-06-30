@@ -105,8 +105,20 @@ export function AuthProvider(props: AuthProviderProps) {
   )
 }
 
-export function useAuth() {
+function useAuth() {
   const result = React.useContext(AuthContext)
   if (!result) throw new Error("useAuth must be used within an AuthProvider")
   return result
+}
+
+export function useAccount() {
+  return useAuth().account
+}
+
+export function useLogout() {
+  return useAuth().logout
+}
+
+export function useLoginUrls() {
+  return useAuth().loginUrls
 }

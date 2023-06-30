@@ -12,13 +12,17 @@ export const handler = ApiHandler(async () => {
 
   console.log("Pushing for", useActor())
 
+  // TODO: We don't actually have strong auth guards within the domain models
+
+  // TODO: Use zod to safe parse the body
   const body = useJsonBody()
+  console.log("body", JSON.stringify(body, null, 2))
 
   await useTransaction(async () => {
     let lastMutationId = await (async function () {
-      const result = await Replicache.fromId(body.clientID)
-      if (result) return result.lastMutationId
-      const client = await Replicache.create(body.clientID)
+      const existingClient = await Replicache.fromId({ id: body.clientID })
+      if (existingClient) return existingClient.lastMutationId
+      const client = await Replicache.create({ id: body.clientID })
       return client.lastMutationId
     })()
 
@@ -48,12 +52,15 @@ export const handler = ApiHandler(async () => {
     }
 
     await Replicache.setLastMutationId({
-      id: body.clientId,
+      id: body.clientID,
       lastMutationId: lastMutationId,
     })
   })
 
-  await Realtime.publish({ topic: "poke", properties: {} })
+  await Realtime.publish({
+    topic: "poke",
+    properties: {},
+  })
 
   return {
     statusCode: 200,

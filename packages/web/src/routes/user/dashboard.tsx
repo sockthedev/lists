@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { createId } from "@paralleldrive/cuid2"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -16,7 +17,7 @@ import { H1 } from "@/components/ui/h1"
 import { Input } from "@/components/ui/input"
 import { PageLayout } from "@/components/ui/page-layout"
 import { Seperator } from "@/components/ui/seperator"
-import { useCreateList, useLists } from "@/context/replicache-root"
+import { useCreateList, useLists } from "@/context/replicache"
 
 const createListFormSchema = z.object({
   name: z.string().min(1, "Please enter a name for your list."),
@@ -33,11 +34,10 @@ export function UserDashboard() {
     },
   })
 
-  async function onCreateListSubmit(
-    values: z.infer<typeof createListFormSchema>,
-  ) {
+  function onCreateListSubmit(values: z.infer<typeof createListFormSchema>) {
     console.log(values)
-    await createList({
+    createList({
+      id: createId(),
       name: values.name,
     })
   }

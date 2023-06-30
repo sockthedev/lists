@@ -1,10 +1,10 @@
 import React from "react"
 import { useNavigate } from "react-router-dom"
 
-import { useAuth } from "@/context/auth.tsx"
+import { useAccount } from "@/context/auth"
 
 export function LoginCallback() {
-  const { account } = useAuth()
+  const account = useAccount()
   const navigate = useNavigate()
 
   React.useEffect(() => {

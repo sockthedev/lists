@@ -2,26 +2,22 @@ import { iot, mqtt } from "aws-iot-device-sdk-v2"
 import React from "react"
 import invariant from "tiny-invariant"
 
-import { useAuth } from "./auth.tsx"
+import { useAccount } from "./auth.tsx"
 import { bus } from "./bus.tsx"
-import { useLists } from "./replicache-root.tsx"
 
 let connectionId = 0
 
 export function RealtimeProvider(props: { children: React.ReactElement }) {
-  const { account } = useAuth()
-  const lists = useLists()
+  const account = useAccount()
 
   React.useEffect(() => {
-    if (!account || lists.length === 0) {
+    if (!account) {
       return
     }
 
-    connectionId += 1
-
     let connection: mqtt.MqttClientConnection
 
-    async function connectWS() {
+    async function connect() {
       invariant(account, "Expected account to exist")
 
       const url = import.meta.env.VITE_IOT_HOST
@@ -41,35 +37,33 @@ export function RealtimeProvider(props: { children: React.ReactElement }) {
         .build()
 
       const client = new mqtt.MqttClient()
+      connectionId += 1
       connection = client.new_connection(config)
       connection.on("connect", async () => {
-        console.log(`🤖 RealtimeProvider(${connectionId}): WS connected`)
-        for (const list of lists) {
-          console.log(
-            `🤖 RealtimeProvider(${connectionId}): WS subscribing to`,
-            list,
-          )
-          await connection.subscribe(
-            `pwa/${import.meta.env.VITE_STAGE}/${list}/#`,
-            mqtt.QoS.AtLeastOnce,
-          )
-        }
+        console.log(`🤖 Realtime(${connectionId}): WS connected`)
+        console.log(
+          `🤖 Realtime(${connectionId}): WS subscribing to`,
+          account.accountId,
+        )
+        await connection.subscribe(
+          `pwa/${import.meta.env.VITE_STAGE}/${account.accountId}/#`,
+          mqtt.QoS.AtLeastOnce,
+        )
       })
       connection.on("interrupt", console.log)
       connection.on("error", console.log)
       connection.on("resume", console.log)
       connection.on("message", (fullTopic, payload) => {
-        const splits = fullTopic.split("/")
-        const listId = splits[2]
-        invariant(listId, "No list id")
-        const topic = splits[3]
+        const [, , accountId, topic] = fullTopic.split("/")
+        invariant(accountId, "No account id")
+        invariant(topic, "No topic")
         const message = new TextDecoder("utf8").decode(new Uint8Array(payload))
         const parsed = JSON.parse(message)
         if (topic === "poke") {
-          bus.emit("poke", { listId })
+          bus.emit("poke", {})
         }
         console.log(
-          `🤖 RealtimeProvider(${connectionId}): WS got message`,
+          `🤖 Realtime(${connectionId}): WS got message`,
           topic,
           parsed,
         )
@@ -78,15 +72,15 @@ export function RealtimeProvider(props: { children: React.ReactElement }) {
       await connection.connect()
     }
 
-    connectWS().catch((err) => {
-      console.error(`🤖 RealtimeProvider(${connectionId}): WS error`, err)
+    connect().catch((err) => {
+      console.error(`🤖 Realtime(${connectionId}): WS error`, err)
     })
 
     return () => {
-      console.log(`🤖 RealtimeProvider(${connectionId}): disconnecting`)
+      console.log(`🤖 Realtime(${connectionId}): disconnecting`)
       connection?.disconnect()
     }
-  }, [account, lists])
+  }, [account])
 
   return props.children
 }

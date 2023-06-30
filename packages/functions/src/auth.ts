@@ -1,4 +1,5 @@
 import { Account } from "@lists/core/account/index.ts"
+import { provideActor } from "@lists/core/actor.ts"
 import { useTransaction } from "@lists/core/util/transaction.ts"
 import { Config } from "sst/node/config"
 import { AuthHandler, GoogleAdapter } from "sst/node/future/auth"
@@ -24,6 +25,11 @@ export const handler = AuthHandler({
     }
     invariant(email != null, 'Expected "email" to be defined')
 
+    provideActor({
+      type: "system",
+      properties: {},
+    })
+
     let accountId = await Account.fromEmail({ email }).then((x) => x?.id)
 
     if (!accountId) {
@@ -41,8 +47,7 @@ export const handler = AuthHandler({
     return response.session({
       type: "account",
       properties: {
-        accountId: accountId!,
-        email: email!,
+        accountId,
       },
     })
   },

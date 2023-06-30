@@ -4,13 +4,13 @@
   "type": "module",
   "scripts": {
     "db:push": "sst bind drizzle-kit push:mysql",
-    "typecheck": "tsc"
+    "tsc": "tsc"
   },
   "devDependencies": {
     "@types/node": "^20.2.5",
     "drizzle-kit": "^0.18.1",
     "eslint-config-prettier": "^8.8.0",
-    "sst": "2.17.6"
+    "sst": "2.18.0"
   },
   "dependencies": {
     "@aws-sdk/client-iot": "^3.348.0",

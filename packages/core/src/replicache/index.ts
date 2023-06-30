@@ -10,6 +10,8 @@ import { replicache_client } from "./replicache.sql.ts"
 
 export * as Replicache from "./index.ts"
 
+// TODO: Domain auth guards
+
 const Schema = createSelectSchema(replicache_client)
 
 export type Type = z.infer<typeof Schema>
@@ -55,6 +57,9 @@ export const setLastMutationId = zod(
 
 export async function poke() {
   console.log("🤖 Replicache: sending poke")
-  await Realtime.publish({ topic: "poke", properties: {} })
+  await Realtime.publish({
+    topic: "poke",
+    properties: {},
+  })
   console.log("🤖 Replicache: poke sent")
 }

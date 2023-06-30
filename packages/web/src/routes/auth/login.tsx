@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form.tsx"
 import { Input } from "@/components/ui/input.tsx"
 import { Seperator } from "@/components/ui/seperator.tsx"
-import { useAuth } from "@/context/auth.tsx"
+import { useLoginUrls } from "@/context/auth"
 
 const emailFormSchema = z.object({
   email: z.string().email({
@@ -26,7 +26,7 @@ const emailFormSchema = z.object({
 })
 
 export function Login() {
-  const auth = useAuth()
+  const loginUrls = useLoginUrls()
 
   const emailForm = useForm<z.infer<typeof emailFormSchema>>({
     resolver: zodResolver(emailFormSchema),
@@ -87,7 +87,7 @@ export function Login() {
 
         <div className="mt-6 grid grid-cols-2 gap-4">
           <Button asChild size="sm" className="gap-3">
-            <a href={auth.loginUrls.google()}>
+            <a href={loginUrls.google()}>
               <FontAwesomeIcon
                 icon={faGoogle}
                 className="h-4 w-4"
@@ -98,7 +98,7 @@ export function Login() {
           </Button>
 
           <Button asChild size="sm" className="gap-3">
-            <a href={auth.loginUrls.twitter()}>
+            <a href={loginUrls.twitter()}>
               <FontAwesomeIcon
                 icon={faTwitter}
                 className="h-4 w-4"

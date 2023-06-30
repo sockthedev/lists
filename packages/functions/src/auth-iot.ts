@@ -1,32 +1,13 @@
 import { assertActor, provideActor } from "@lists/core/actor.ts"
-import { db } from "@lists/core/drizzle/index.ts"
-import { user } from "@lists/core/user/user.sql.ts"
-import { eq } from "drizzle-orm"
 import { Config } from "sst/node/config"
 import { Session } from "sst/node/future/auth"
 
 export async function handler(evt: any) {
-  const tokens = Buffer.from(evt.protocolData.mqtt.password, "base64")
-    .toString()
-    .split(";")
+  const token = Buffer.from(evt.protocolData.mqtt.password, "base64").toString()
 
-  const lists: string[] = []
-
-  for (const token of tokens) {
-    const session = Session.verify(token)
-    provideActor(session as any)
-    const account = assertActor("account")
-    const rows = await db
-      .select({
-        listId: user.listId,
-      })
-      .from(user)
-      .where(eq(user.email, account.properties.email))
-      .execute()
-    lists.push(...rows.map((r) => r.listId))
-  }
-
-  console.log("🤖 auth-iot: lists", lists)
+  const session = Session.verify(token)
+  provideActor(session as any)
+  const account = assertActor("account")
 
   const policy = {
     isAuthenticated: true, //A Boolean that determines whether client can connect.
@@ -36,7 +17,7 @@ export async function handler(evt: any) {
     policyDocuments: [
       {
         Version: "2012-10-17",
-        Statement: lists.flatMap((listId) => [
+        Statement: [
           {
             Action: "iot:Connect",
             Effect: "Allow",
@@ -45,14 +26,14 @@ export async function handler(evt: any) {
           {
             Action: "iot:Receive",
             Effect: "Allow",
-            Resource: `arn:aws:iot:${process.env.AWS_REGION}:${process.env.ACCOUNT}:topic/${Config.APP}/${Config.STAGE}/${listId}/*`,
+            Resource: `arn:aws:iot:${process.env.AWS_REGION}:${process.env.ACCOUNT}:topic/${Config.APP}/${Config.STAGE}/${account.properties.accountId}/*`,
           },
           {
             Action: "iot:Subscribe",
             Effect: "Allow",
-            Resource: `arn:aws:iot:${process.env.AWS_REGION}:${process.env.ACCOUNT}:topicfilter/${Config.APP}/${Config.STAGE}/${listId}/*`,
+            Resource: `arn:aws:iot:${process.env.AWS_REGION}:${process.env.ACCOUNT}:topicfilter/${Config.APP}/${Config.STAGE}/${account.properties.accountId}/*`,
           },
-        ]),
+        ],
       },
     ],
   }

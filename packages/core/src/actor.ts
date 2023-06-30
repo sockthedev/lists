@@ -11,30 +11,17 @@ export const accountActorSchema = z.object({
   type: z.literal("account"),
   properties: z.object({
     accountId: z.string().cuid2(),
-    email: z.string().email(),
   }),
 })
 export type AccountActor = z.infer<typeof accountActorSchema>
 
-export const userActorSchema = z.object({
-  type: z.literal("user"),
-  properties: z.object({
-    userId: z.string().cuid2(),
-    listId: z.string().cuid2(),
-  }),
-})
-export type UserActor = z.infer<typeof userActorSchema>
-
 export const systemActorSchema = z.object({
   type: z.literal("system"),
-  properties: z.object({
-    listId: z.string().cuid2(),
-  }),
+  properties: z.object({}),
 })
 export type SystemActor = z.infer<typeof systemActorSchema>
 
 export const actorSchema = z.discriminatedUnion("type", [
-  userActorSchema,
   accountActorSchema,
   publicActorSchema,
   systemActorSchema,
@@ -53,10 +40,4 @@ export function assertActor<T extends Actor["type"]>(type: T) {
   }
 
   return actor as Extract<Actor, { type: T }>
-}
-
-export function useList() {
-  const actor = useActor()
-  if ("listId" in actor.properties) return actor.properties.listId
-  throw new Error(`Expected actor to have listId`)
 }

@@ -8,11 +8,6 @@ export const id = {
   id: cuid("id").notNull(),
 }
 
-export const listId = {
-  ...id,
-  listId: cuid("list_id").notNull(),
-}
-
 export const timestamps = {
   createdAt: datetime("created_at", {
     mode: "string",

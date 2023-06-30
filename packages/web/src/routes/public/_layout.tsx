@@ -1,7 +1,5 @@
 import { Link, Outlet, ScrollRestoration } from "react-router-dom"
 
-import { RealtimeProvider } from "@/context/realtime.tsx"
-
 export function PublicLayout() {
   return (
     <>
@@ -16,7 +14,6 @@ export function PublicLayout() {
       </ul>
       <Outlet />
       <ScrollRestoration />
-      <RealtimeProvider />
     </>
   )
 }

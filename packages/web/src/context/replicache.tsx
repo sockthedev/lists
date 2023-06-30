@@ -7,24 +7,34 @@ import invariant from "tiny-invariant"
 
 import { ListStore } from "@/data/list.ts"
 
-import { useAuth } from "./auth.tsx"
+import { useAccount } from "./auth.tsx"
+import { bus } from "./bus.tsx"
+
+// TODO: Refactor the lists into it's own nested context
 
 const mutators = new Client<ServerType>()
-  .mutation("create_list", async (_tx, _input) => {})
+  .mutation("create_list", async (tx, input) => {
+    console.log("mutation, create_list:", input.name)
+    await tx.put(ListStore.key({ id: input.id }), {
+      id: input.name,
+      name: input.name,
+    })
+  })
   .build()
 
-const ReplicacheRootContext = React.createContext<{
+const ReplicacheContext = React.createContext<{
   lists: List.Type[]
-  createList: (input: { name: string }) => Promise<void>
+  createList: (input: { name: string }) => void
 }>(null as any)
 
-export function ReplicacheRootProvider(props: { children: React.ReactNode }) {
-  const { account } = useAuth()
+export function ReplicacheProvider(props: { children: React.ReactNode }) {
+  const account = useAccount()
   invariant(
     account,
-    "ReplicacheRootProvider must be used inside an AuthProvider",
+    "ReplicacheProvider must be used inside an authorised session",
   )
 
+  // TODO: Refactor this into an effect based initialiser
   const replicache = React.useMemo(() => {
     return new Replicache({
       name: account.accountId,
@@ -46,39 +56,60 @@ export function ReplicacheRootProvider(props: { children: React.ReactNode }) {
   }, [account])
 
   React.useEffect(() => {
-    replicache.subscribe(ListStore.all(), {
+    const unsubscribe = replicache.subscribe(ListStore.all(), {
       onData(lists) {
         console.log("🤖 ReplicacheRootProvider: lists", lists)
         setLists(lists)
       },
     })
     return () => {
+      unsubscribe()
+    }
+  }, [replicache])
+
+  React.useEffect(() => {
+    const pokeHandler = () => {
+      replicache.pull()
+    }
+
+    bus.on("poke", pokeHandler)
+
+    return () => {
+      bus.off("poke", pokeHandler)
+    }
+  }, [replicache])
+
+  React.useEffect(() => {
+    if (!replicache) {
+      return
+    }
+    return () => {
       replicache.close()
     }
   }, [replicache])
 
   return (
-    <ReplicacheRootContext.Provider
+    <ReplicacheContext.Provider
       value={{
         lists,
-        createList: async (input: { name: string }) => {
+        createList: (input: { name: string }) => {
           console.log("🤖 ReplicacheRootProvider: createList", input)
-          await replicache.mutate.create_list({ name: input.name })
+          replicache.mutate.create_list({ name: input.name })
           console.log("🤖 ReplicacheRootProvider: createList done")
         },
       }}
     >
       {props.children}
-    </ReplicacheRootContext.Provider>
+    </ReplicacheContext.Provider>
   )
 }
 
 export function useLists() {
-  const { lists } = React.useContext(ReplicacheRootContext)
+  const { lists } = React.useContext(ReplicacheContext)
   return lists
 }
 
 export function useCreateList() {
-  const { createList } = React.useContext(ReplicacheRootContext)
+  const { createList } = React.useContext(ReplicacheContext)
   return createList
 }

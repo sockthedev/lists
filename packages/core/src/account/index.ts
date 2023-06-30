@@ -1,9 +1,9 @@
 import { createId } from "@paralleldrive/cuid2"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { createSelectSchema } from "drizzle-zod"
-import invariant from "tiny-invariant"
 import type { z } from "zod"
 
+import { useActor } from "../actor.ts"
 import { dbNow } from "../util/datetime.ts"
 import { useTransaction } from "../util/transaction.ts"
 import { zod } from "../util/zod.ts"
@@ -22,8 +22,12 @@ export const create = zod(
   Schema.pick({ email: true, id: true }).partial({
     id: true,
   }),
-  (input) =>
-    useTransaction(async (tx) => {
+  (input) => {
+    const actor = useActor()
+    if (actor.type !== "system") {
+      throw new Error("Not authorized")
+    }
+    return useTransaction(async (tx) => {
       const data: Type = {
         id: input.id ?? createId(),
         email: input.email,
@@ -32,28 +36,52 @@ export const create = zod(
       }
       await tx.insert(account).values(data)
       return data
-    }),
+    })
+  },
 )
 
-export const fromID = zod(Schema.pick({ id: true }), (input) =>
-  useTransaction(async (tx) => {
+export const fromId = zod(Schema.pick({ id: true }), (input) => {
+  const actor = useActor()
+  if (actor.type === "public") {
+    throw new Error("Not authorized")
+  }
+
+  return useTransaction(async (tx) => {
     const [data] = await tx
       .select()
       .from(account)
-      .where(eq(account.id, input.id))
+      .where(
+        actor.type === "system"
+          ? eq(account.id, input.id)
+          : and(
+              eq(account.id, input.id),
+              eq(account.id, actor.properties.accountId),
+            ),
+      )
       .execute()
-    invariant(data, "Account not found")
     return data
-  }),
-)
+  })
+})
 
-export const fromEmail = zod(Schema.pick({ email: true }), (input) =>
-  useTransaction(async (tx) => {
-    return tx
+export const fromEmail = zod(Schema.pick({ email: true }), (input) => {
+  const actor = useActor()
+  if (actor.type === "public") {
+    throw new Error("Not authorized")
+  }
+
+  return useTransaction(async (tx) => {
+    const [data] = await tx
       .select()
       .from(account)
-      .where(eq(account.email, input.email))
+      .where(
+        actor.type === "system"
+          ? eq(account.email, input.email)
+          : and(
+              eq(account.email, input.email),
+              eq(account.id, actor.properties.accountId),
+            ),
+      )
       .execute()
-      .then((rows) => rows[0])
-  }),
-)
+    return data
+  })
+})

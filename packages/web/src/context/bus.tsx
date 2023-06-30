@@ -1,9 +1,7 @@
 import mitt from "mitt"
 
 type Events = {
-  poke: {
-    listId: string
-  }
+  poke: {}
 }
 
 export const bus = mitt<Events>()

@@ -1,14 +1,14 @@
 import { Outlet } from "react-router-dom"
 
 import { RealtimeProvider } from "@/context/realtime"
-import { ReplicacheRootProvider } from "@/context/replicache-root"
+import { ReplicacheProvider } from "@/context/replicache"
 
 export function UserLayout() {
   return (
-    <ReplicacheRootProvider>
+    <ReplicacheProvider>
       <RealtimeProvider>
         <Outlet />
       </RealtimeProvider>
-    </ReplicacheRootProvider>
+    </ReplicacheProvider>
   )
 }

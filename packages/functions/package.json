@@ -8,7 +8,7 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.116",
     "@types/node": "^20.2.5",
-    "sst": "2.18.0"
+    "sst": "2.18.2"
   },
   "dependencies": {
     "drizzle-orm": "^0.26.5",

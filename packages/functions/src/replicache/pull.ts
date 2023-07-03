@@ -1,5 +1,5 @@
 import { useActor } from "@lists/core/actor.ts"
-import { list, list_user, todo } from "@lists/core/list/list.sql.ts"
+import { item, list, list_user } from "@lists/core/list/list.sql.ts"
 import { Replicache } from "@lists/core/replicache/index.ts"
 import { replicache_cvr } from "@lists/core/replicache/replicache.sql.ts"
 import { dbNow } from "@lists/core/util/datetime.ts"
@@ -86,7 +86,7 @@ export const handler = ApiHandler(async () => {
     const tables = {
       list,
       list_user,
-      todo,
+      item,
     }
 
     const results: [string, { id: string; updatedAt: string }[]][] = []
@@ -108,14 +108,14 @@ export const handler = ApiHandler(async () => {
           .execute()
         clog.debug("lists", rows)
         results.push([name, rows])
-      } else if (table === todo) {
+      } else if (table === item) {
         const rows = await tx
           .select({ id: table.id, updatedAt: table.updatedAt })
           .from(table)
           .innerJoin(list_user, eq(list_user.listId, table.listId))
           .where(eq(list_user.accountId, actor.properties.accountId))
           .execute()
-        clog.debug("todos", rows)
+        clog.debug("items", rows)
         results.push([name, rows])
       } else {
         throw new Error(`Unhandled table ${name}`)

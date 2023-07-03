@@ -10,11 +10,6 @@ import {
 
 import { cuid, id, timestamps } from "../util/sql.ts"
 
-const listId = {
-  ...id,
-  listId: cuid("list_id").notNull(),
-}
-
 export const list = mysqlTable(
   "list",
   {
@@ -30,7 +25,8 @@ export const list = mysqlTable(
 export const list_user = mysqlTable(
   "list_user",
   {
-    ...listId,
+    ...id,
+    listId: cuid("list_id").notNull(),
     accountId: cuid("account_id").notNull(),
     role: mysqlEnum("role", ["owner", "admin", "viewer"]).notNull(),
     ...timestamps,
@@ -44,18 +40,19 @@ export const list_user = mysqlTable(
   }),
 )
 
-export const todo = mysqlTable(
-  "todo",
+export const item = mysqlTable(
+  "item",
   {
-    ...listId,
-    text: varchar("text", { length: 255 }).notNull(),
-    doneAt: datetime("done_at", {
+    ...id,
+    listId: cuid("list_id").notNull(),
+    description: varchar("text", { length: 255 }).notNull(),
+    completedAt: datetime("completed_at", {
       mode: "string",
     }),
     ...timestamps,
   },
   (user) => ({
     primary: primaryKey(user.id, user.listId),
-    created: index("created").on(user.listId, user.createdAt),
+    listByCreated: index("list_by_created").on(user.listId, user.createdAt),
   }),
 )

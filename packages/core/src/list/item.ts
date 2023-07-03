@@ -7,18 +7,18 @@ import { useActor } from "../actor.ts"
 import { dbNow } from "../util/datetime.ts"
 import { useTransaction } from "../util/transaction.ts"
 import { zod } from "../util/zod.ts"
-import { list, list_user, todo } from "./list.sql.ts"
+import { item, list, list_user } from "./list.sql.ts"
 
-export * as Todo from "./todo.ts"
+export * as Item from "./item.ts"
 
-const Schema = createSelectSchema(todo, {
+const Schema = createSelectSchema(item, {
   id: (schema) => schema.id.cuid2(),
 })
 
 export type Type = z.infer<typeof Schema>
 
 export const create = zod(
-  Schema.pick({ listId: true, text: true, id: true }).partial({
+  Schema.pick({ listId: true, description: true, id: true }).partial({
     id: true,
   }),
   (input) => {
@@ -28,7 +28,7 @@ export const create = zod(
     }
     return useTransaction(async (tx) => {
       const [hasAccess] = await tx
-        .select({ id: list.id })
+        .select({ id: list_user.id })
         .from(list_user)
         .where(
           and(
@@ -44,12 +44,12 @@ export const create = zod(
       const data: Type = {
         id: input.id ?? createId(),
         listId: input.listId,
-        text: input.text,
+        description: input.description,
         createdAt: dbNow(),
         updatedAt: dbNow(),
-        doneAt: null,
+        completedAt: null,
       }
-      await tx.insert(todo).values(data)
+      await tx.insert(item).values(data)
       return data
     })
   },
@@ -59,9 +59,9 @@ export const byList = zod(Schema.pick({ listId: true }), (input) => {
   return useTransaction(async (tx) => {
     return tx
       .select()
-      .from(todo)
-      .where(eq(todo.listId, input.listId))
-      .orderBy(desc(todo.createdAt))
+      .from(item)
+      .where(eq(item.listId, input.listId))
+      .orderBy(desc(item.createdAt))
       .execute()
   })
 })

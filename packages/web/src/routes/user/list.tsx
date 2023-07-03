@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import React from "react"
 import { useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
 import { z } from "zod"
 
 import {
@@ -16,53 +15,78 @@ import { H1 } from "@/components/ui/h1"
 import { Input } from "@/components/ui/input"
 import { PageLayout } from "@/components/ui/page-layout"
 import { Seperator } from "@/components/ui/seperator"
-import { useCreateListMutator, useSubscribe } from "@/context/replicache"
+import { useCreateItemMutator, useSubscribe } from "@/context/replicache"
+import { ItemStore } from "@/data/item"
 import { ListStore } from "@/data/list"
 
+import { useZodParams } from "../lib/use-zod-params"
+
 const formSchema = z.object({
-  name: z.string().min(1, "Please enter a name for your list."),
+  description: z.string().min(1, "Please enter description for your item"),
 })
 
-export function UserDashboard() {
-  const lists = useSubscribe(ListStore.all, [])
-  const createList = useCreateListMutator()
+export function ListDetail() {
+  const params = useZodParams(z.object({ listId: z.string() }))
+
+  const list = useSubscribe(
+    (tx) => ListStore.fromId(tx, { id: params.listId }),
+    undefined,
+    [params.listId],
+  )
+
+  const items = useSubscribe(
+    (tx) => ItemStore.byListId(tx, { listId: params.listId }),
+    [],
+    [params.listId],
+  )
+
+  const createItem = useCreateItemMutator()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      description: "",
     },
   })
 
   React.useEffect(() => {
     if (form.formState.isSubmitSuccessful) {
-      form.reset({ name: "" })
+      form.reset({ description: "" })
     }
   }, [form, form.formState.isSubmitSuccessful])
 
+  const handleSubmit = React.useCallback(
+    (input: { description: string }) => {
+      createItem({ listId: params.listId, description: input.description })
+    },
+    [params.listId, createItem],
+  )
+
+  if (!list) {
+    return null
+  }
+
   return (
     <PageLayout.NarrowContent>
-      <H1>My Lists</H1>
+      <H1>{list.name}</H1>
 
-      {lists.map((list) => (
-        <div key={list.id}>
-          <p>
-            <Link to={`/user/lists/${list.id}`}>{list.name}</Link>
-          </p>
+      {items.map((item) => (
+        <div key={item.id}>
+          <p>{item.description}</p>
         </div>
       ))}
 
-      <Seperator label="Create List" />
+      <Seperator label="Add Item" />
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(createList)}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
           <FormField
-            name="name"
+            name="description"
             control={form.control}
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormControl onSubmit={form.handleSubmit(createList)}>
-                  <Input type="text" placeholder="Bucket List" {...field} />
+                <FormControl onSubmit={form.handleSubmit(handleSubmit)}>
+                  <Input type="text" placeholder="Buy cheese" {...field} />
                 </FormControl>
                 {!fieldState.error && (
                   <FormDescription>

@@ -8,6 +8,7 @@ import { About } from "./public/about.tsx"
 import { Home } from "./public/home.tsx"
 import { UserLayout } from "./user/_layout.tsx"
 import { UserDashboard } from "./user/dashboard.tsx"
+import { ListDetail } from "./user/list.tsx"
 
 export const routes: RouteObject[] = [
   // Public Routes
@@ -45,6 +46,15 @@ export const routes: RouteObject[] = [
       {
         index: true,
         element: <UserDashboard />,
+      },
+      {
+        path: "lists",
+        children: [
+          {
+            path: ":listId",
+            element: <ListDetail />,
+          },
+        ],
       },
     ],
   },

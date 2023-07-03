@@ -2,11 +2,13 @@ import { Client } from "@lists/functions/replicache/framework.ts"
 import type { ServerType } from "@lists/functions/replicache/server.ts"
 import { createId } from "@paralleldrive/cuid2"
 import React from "react"
+import type { ReadonlyJSONValue, ReadTransaction } from "replicache"
 import { Replicache } from "replicache"
-import { useSubscribe } from "replicache-react"
+import { useSubscribe as useSubscribeOfficial } from "replicache-react"
 import invariant from "tiny-invariant"
 
-import { ListStore } from "@/data/list.ts"
+import { ItemStore } from "@/data/item.tsx"
+import { ListStore } from "@/data/list.tsx"
 
 import { useAccount } from "./auth.tsx"
 import { bus } from "./bus.tsx"
@@ -28,8 +30,12 @@ function createReplicache(input: { token: string; accountId: string }) {
 
 const mutators = new Client<ServerType>()
   .mutation("create_list", async (tx, input) => {
-    console.log("🌍 replicache.mutation: create_list", input.name)
+    console.log("🌍 replicache.mutation: create_list", input)
     await ListStore.create(tx, input)
+  })
+  .mutation("create_item", async (tx, input) => {
+    console.log("🌍 replicache.mutation: create_item", input)
+    await ItemStore.create(tx, input)
   })
   .build()
 
@@ -88,13 +94,26 @@ export function ReplicacheProvider(props: { children: React.ReactNode }) {
   )
 }
 
-export function useSubscribeLists() {
+export function useReplicache() {
   const replicache = React.useContext(ReplicacheContext)
-  return useSubscribe(replicache, ListStore.all(), [], [replicache])
+  invariant(
+    replicache,
+    "useReplicache must be used inside a ReplicacheProvider",
+  )
+  return replicache
 }
 
-export function useCreateList() {
-  const replicache = React.useContext(ReplicacheContext)
+export function useSubscribe<R extends ReadonlyJSONValue | undefined>(
+  query: (tx: ReadTransaction) => Promise<R>,
+  def: R,
+  deps?: Array<unknown>,
+): R {
+  const replicache = useReplicache()
+  return useSubscribeOfficial(replicache, query, def, deps)
+}
+
+export function useCreateListMutator() {
+  const replicache = useReplicache()
   const createList = React.useCallback(
     (input: { name: string }) => {
       replicache.mutate.create_list({ id: createId(), name: input.name })
@@ -102,4 +121,19 @@ export function useCreateList() {
     [replicache],
   )
   return createList
+}
+
+export function useCreateItemMutator() {
+  const replicache = useReplicache()
+  const createItem = React.useCallback(
+    (input: { listId: string; description: string }) => {
+      replicache.mutate.create_item({
+        id: createId(),
+        description: input.description,
+        listId: input.listId,
+      })
+    },
+    [replicache],
+  )
+  return createItem
 }

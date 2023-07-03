@@ -27,7 +27,7 @@ const Main: React.FC<{ children: React.ReactNode; className?: string }> = (
 }
 
 const NarrowContent: React.FC<{ children: React.ReactNode }> = (props) => {
-  return <div className="mx-auto max-w-2xl">{props.children}</div>
+  return <div className="mx-auto max-w-2xl w-full">{props.children}</div>
 }
 
 const Section: React.FC<{ children: React.ReactNode }> = (props) => {

@@ -2,7 +2,10 @@ import { List } from "@lists/core/list/index.ts"
 import { Item } from "@lists/core/list/item.ts"
 import { z } from "zod"
 
+import { log } from "../log.ts"
 import { Server } from "./framework.ts"
+
+const clog = log.context("replicache/server")
 
 export const server = new Server()
   .mutation(
@@ -12,6 +15,7 @@ export const server = new Server()
       name: z.string(),
     },
     async (input) => {
+      clog.debug("create_list", input)
       const list = await List.create(input)
       return list
     },
@@ -24,6 +28,7 @@ export const server = new Server()
       listId: z.string(),
     },
     async (input) => {
+      clog.debug("create_item", input)
       const item = await Item.create(input)
       return item
     },

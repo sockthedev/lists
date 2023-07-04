@@ -5,18 +5,21 @@ import { useTransaction } from "@lists/core/util/transaction.ts"
 import { ApiHandler, useJsonBody } from "sst/node/api"
 
 import { useApiAuth } from "../api.ts"
+import { log } from "../log.ts"
 import { server } from "./server.ts"
+
+const clog = log.context("replicache/push")
 
 export const handler = ApiHandler(async () => {
   await useApiAuth()
 
-  console.log("🐑 replicache/push: Pushing for", useActor())
+  clog.debug("Pushing for", useActor())
 
   // TODO: We don't actually have strong auth guards within the domain models
 
   // TODO: Use zod to safe parse the body
   const body = useJsonBody()
-  console.log("🐑 replicache/push: body", JSON.stringify(body, null, 2))
+  clog.debug("body", body)
 
   await useTransaction(async () => {
     let lastMutationId = await (async function () {
@@ -25,22 +28,20 @@ export const handler = ApiHandler(async () => {
       const client = await Replicache.create({ id: body.clientID })
       return client.lastMutationId
     })()
-    console.log("🐑 replicache/push: lastMutationId", lastMutationId)
+    clog.debug("lastMutationId", lastMutationId)
 
     for (const mutation of body.mutations) {
       const nextMutationid = lastMutationId + 1
 
       if (mutation.id < nextMutationid) {
-        console.log(
-          `🐑 replicache/push: Mutation ${mutation.id} has already been processed - skipping`,
+        clog.info(
+          `Mutation ${mutation.id} has already been processed - skipping`,
         )
         continue
       }
 
       if (mutation.id > nextMutationid) {
-        console.warn(
-          `🐑 replicache/push: Mutation ${mutation.id} is from the future - aborting`,
-        )
+        clog.warn(`Mutation ${mutation.id} is from the future - aborting`)
         break
       }
 

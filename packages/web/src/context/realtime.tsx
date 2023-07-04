@@ -2,8 +2,12 @@ import { iot, mqtt } from "aws-iot-device-sdk-v2"
 import React from "react"
 import invariant from "tiny-invariant"
 
+import { log } from "@/lib/log.ts"
+
 import { useAccount } from "./auth.tsx"
 import { bus } from "./bus.tsx"
+
+const clog = log.context("realtime")
 
 let connectionId = 0
 
@@ -40,11 +44,7 @@ export function RealtimeProvider(props: { children: React.ReactElement }) {
       connectionId += 1
       connection = client.new_connection(config)
       connection.on("connect", async () => {
-        console.log(`🤖 Realtime(${connectionId}): WS connected`)
-        console.log(
-          `🤖 Realtime(${connectionId}): WS subscribing to`,
-          account.accountId,
-        )
+        clog.debug(`[${connectionId}] WS connected`)
         await connection.subscribe(
           `pwa/${import.meta.env.VITE_STAGE}/${account.accountId}/#`,
           mqtt.QoS.AtLeastOnce,
@@ -62,22 +62,20 @@ export function RealtimeProvider(props: { children: React.ReactElement }) {
         if (topic === "poke") {
           bus.emit("poke", {})
         }
-        console.log(
-          `🤖 Realtime(${connectionId}): WS got message`,
-          topic,
-          parsed,
-        )
+        clog.debug(`[${connectionId}] WS got message`, { topic, parsed })
       })
-      connection.on("disconnect", console.log)
+      connection.on("disconnect", () => {
+        clog.debug(`[${connectionId}] WS disconnected`)
+      })
       await connection.connect()
     }
 
     connect().catch((err) => {
-      console.error(`🤖 Realtime(${connectionId}): WS error`, err)
+      clog.error(`[${connectionId}] WS error`, err)
     })
 
     return () => {
-      console.log(`🤖 Realtime(${connectionId}): disconnecting`)
+      clog.error(`[${connectionId}] disconnecting`)
       connection?.disconnect()
     }
   }, [account])

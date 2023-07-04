@@ -9,12 +9,15 @@ import invariant from "tiny-invariant"
 
 import { ItemStore } from "@/data/item.tsx"
 import { ListStore } from "@/data/list.tsx"
+import { log } from "@/lib/log.ts"
 
 import { useAccount } from "./auth.tsx"
 import { bus } from "./bus.tsx"
 
+const clog = log.context("replicache")
+
 function createReplicache(input: { token: string; accountId: string }) {
-  console.log("🌍 createReplicache", input.accountId)
+  clog.debug("create", input)
   return new Replicache({
     // logLevel: "debug",
     name: input.accountId,
@@ -30,11 +33,11 @@ function createReplicache(input: { token: string; accountId: string }) {
 
 const mutators = new Client<ServerType>()
   .mutation("create_list", async (tx, input) => {
-    console.log("🌍 replicache.mutation: create_list", input)
+    clog.debug("mutation.create_list", input)
     await ListStore.create(tx, input)
   })
   .mutation("create_item", async (tx, input) => {
-    console.log("🌍 replicache.mutation: create_item", input)
+    clog.debug("mutation.create_item", input)
     await ItemStore.create(tx, input)
   })
   .build()
@@ -59,7 +62,6 @@ export function ReplicacheProvider(props: { children: React.ReactNode }) {
       return
     }
 
-    console.log("🌍 createReplicache", account.accountId, account.token)
     const _replicache = createReplicache({
       token: account.token,
       accountId: account.accountId,
@@ -77,6 +79,7 @@ export function ReplicacheProvider(props: { children: React.ReactNode }) {
     }
 
     const pokeHandler = () => {
+      clog.debug("poke handler invoked")
       replicache.pull()
     }
 

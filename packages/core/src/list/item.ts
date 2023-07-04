@@ -7,7 +7,7 @@ import { useActor } from "../actor.ts"
 import { dbNow } from "../util/datetime.ts"
 import { useTransaction } from "../util/transaction.ts"
 import { zod } from "../util/zod.ts"
-import { item, list, list_user } from "./list.sql.ts"
+import { item, list_user } from "./list.sql.ts"
 
 export * as Item from "./item.ts"
 

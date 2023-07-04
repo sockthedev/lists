@@ -2,11 +2,16 @@ import { assertActor, provideActor } from "@lists/core/actor.ts"
 import { Config } from "sst/node/config"
 import { Session } from "sst/node/future/auth"
 
+import { log } from "./log.ts"
+
+const clog = log.context("auth-iot")
+
 export async function handler(evt: any) {
   const token = Buffer.from(evt.protocolData.mqtt.password, "base64").toString()
 
   const session = Session.verify(token)
   provideActor(session as any)
+
   const account = assertActor("account")
 
   const policy = {
@@ -38,7 +43,7 @@ export async function handler(evt: any) {
     ],
   }
 
-  console.log(JSON.stringify(policy, null, 2))
+  clog.debug("policy", policy)
 
   return policy
 }

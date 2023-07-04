@@ -2,6 +2,9 @@ import React from "react"
 import { useNavigate } from "react-router-dom"
 
 import { useAccount } from "@/context/auth"
+import { log } from "@/lib/log"
+
+const clog = log.context("LoginCallback")
 
 export function LoginCallback() {
   const account = useAccount()
@@ -9,10 +12,10 @@ export function LoginCallback() {
 
   React.useEffect(() => {
     if (account) {
-      console.log("🤖 LoginCallback: account resolved")
+      clog.debug("account resolved")
       navigate("/user")
     } else {
-      console.log("🤖 LoginCallback: no account resolved, yet")
+      clog.debug("no account resolved, yet")
     }
   }, [account, navigate])
 

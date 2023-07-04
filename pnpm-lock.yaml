@@ -38,8 +38,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(prettier@2.8.8)
       sst:
-        specifier: 2.18.2
-        version: 2.18.2(@types/react@18.0.37)
+        specifier: 2.18.3
+        version: 2.18.3(@types/react@18.0.37)
       typescript:
         specifier: ^5.1.6
         version: 5.1.6
@@ -87,8 +87,8 @@ importers:
         specifier: ^8.8.0
         version: 8.8.0(eslint@8.44.0)
       sst:
-        specifier: 2.18.2
-        version: 2.18.2(@types/react@18.0.37)
+        specifier: 2.18.3
+        version: 2.18.3(@types/react@18.0.37)
 
   packages/functions:
     dependencies:
@@ -115,8 +115,8 @@ importers:
         specifier: ^20.2.5
         version: 20.2.5
       sst:
-        specifier: 2.18.2
-        version: 2.18.2(@types/react@18.0.37)
+        specifier: 2.18.3
+        version: 2.18.3(@types/react@18.0.37)
 
   packages/web:
     dependencies:
@@ -212,8 +212,8 @@ importers:
         specifier: ^8.4.24
         version: 8.4.24
       sst:
-        specifier: 2.18.2
-        version: 2.18.2(@types/react@18.0.37)
+        specifier: 2.18.3
+        version: 2.18.3(@types/react@18.0.37)
       tailwindcss:
         specifier: ^3.3.2
         version: 3.3.2
@@ -8417,8 +8417,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /sst@2.18.2(@types/react@18.0.37):
-    resolution: {integrity: sha512-pPumj7kCcMPBvJOaQC1x3uhPRpsrTNHi3SKHpAhhqxRhAea+o8lMRMSZfAwCMWRbOO+9sjxzAfzNBe3mafoz9w==}
+  /sst@2.18.3(@types/react@18.0.37):
+    resolution: {integrity: sha512-3vj8dlqEPnegJT9L6jHmfTu8P2yTXr644OoloOwjQFQ5xhGUVcJadYppqn0VicGqz3s9vYqmcUeXPFHT8mSIFQ==}
     hasBin: true
     peerDependencies:
       '@sls-next/lambda-at-edge': ^3.7.0

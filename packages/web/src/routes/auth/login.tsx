@@ -42,7 +42,7 @@ export function Login() {
 
   return (
     <>
-      <h2 className="mt-8 text-2xl font-bold leading-9 tracking-tight text-primary">
+      <h2 className="text-primary mt-8 text-2xl font-bold leading-9 tracking-tight">
         Sign in to Lists
       </h2>
 

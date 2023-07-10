@@ -10,7 +10,7 @@
     "@types/node": "^20.2.5",
     "drizzle-kit": "^0.18.1",
     "eslint-config-prettier": "^8.8.0",
-    "sst": "2.18.3"
+    "sst": "2.19.1"
   },
   "dependencies": {
     "@aws-sdk/client-iot": "^3.348.0",

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "deps": "sst update && pnpm install && pnpm up -i -L '!aws-cdk-lib' '!constructs'",
-    "db:push": "pnpm --filter '@lists/core' db:push",
+    "dbpush": "pnpm --filter '@lists/core' db:push",
     "dev:backend": "sst dev",
     "dev:web": "pnpm --filter '@lists/web' dev",
     "tsc": "tsc",
@@ -20,7 +20,7 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
-    "sst": "2.18.3",
+    "sst": "2.19.1",
     "typescript": "^5.1.6"
   },
   "workspaces": [
